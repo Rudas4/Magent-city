@@ -212,6 +212,13 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
 .outfit-shoes { left: 27%; top: 88%; width: 46%; height: 9%; }
 .outfit-bottle { left: 73%; top: 47%; width: 17%; height: 17%; }
 @media (prefers-reduced-motion:reduce) { .incoming-call .phone { animation: none; } }
+#analyticsChoice {
+  position: fixed; z-index: 25; top: 12px; left: 50%; transform: translateX(-50%);
+  width: min(390px,calc(100% - 24px)); padding: 12px; border: 1px solid #9ba88d;
+  border-radius: 8px; background: #18222b; color: #f5f6ef; font: 14px system-ui,sans-serif;
+}
+#analyticsChoice p { margin: 0 0 8px; }
+#analyticsChoice button { padding: 7px 10px; margin-right: 4px; }
 </style></head><body><canvas id="world"></canvas><div class="hud"><div class="pill"><small>HÁTRALÉVŐ IDŐ</small><span id="time">04:00</span></div><div class="pill"><small>CSILLAGOK</small><span id="score">★ 0</span></div></div><button id="sound" aria-label="Hang kapcsolása">Hang: BE</button><div id="urgent" class="hidden"></div><div class="hint" id="hint">Állj meg egy magenta ! jelzésnél</div><div class="controls" id="controls"><div><button data-key="left" aria-label="Balra">◀</button><button data-key="right" aria-label="Jobbra">▶</button></div><div><button data-key="back" aria-label="Fék és tolatás">▼</button><button data-key="go" aria-label="Gáz">▲</button></div></div>
 <div class="overlay" id="start">
   <div id="startActions" class="start-actions">
@@ -223,14 +230,71 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
     <p>Retró utcák, élő forgalom, villámgyors feladatok. Parkolj a magenta jelzéseknél, teljesítsd a város változatos küldetéseit, és gyűjts csillagokat! A narancs sürgős címek dupla csillagot érnek.</p><div class="tags"><span>⏱ 4 perc</span><span>★ 5 csillag / feladat</span><span>15 minijáték</span></div>
     <div class="help">Gép: WASD vagy nyilak · Telefon: képernyőgombok<br>A feladatok alatt is telik az idő. Feladatonként 8–25 másodperc. Az első útmutató alatt áll az óra.<br>Vigyázz az autóra: 10 ütközés után füstöl, 15 után lángol, a 18.-nál felrobban!</div>
     <button id="practiceButton" class="wide secondary">Minijátékok gyakorlása</button><div id="practiceList" class="hidden"></div>
+    <button id="analyticsSettings" class="wide secondary hidden">Játékstatisztika beállítása</button>
     <button id="closeDetails" class="wide secondary">Vissza</button>
   </section>
 </div>
 <div id="damage" class="damage-indicator hidden" aria-live="polite">ÜTKÖZÉS 0 / 18 · ÉP AUTÓ</div><div class="overlay hidden" id="mini"><div class="card"><div class="minihead"><span class="eyebrow">VÁROSI FELADAT</span><span class="clock" id="mt">10</span></div><div class="task-timer"><i id="taskbar"></i></div><div id="deviceLabel" class="device-label">SZERVIZ MUNKAÁLLOMÁS</div><h2 id="title"></h2><p id="instruction" style="margin-top:0;font-size:14px"></p><div id="task"></div><div id="status" aria-live="polite"></div></div></div><div class="overlay hidden" id="end"><div class="card"><span class="eyebrow" id="endLabel">MŰSZAK VÉGE</span><h2 id="endTitle">Lejárt az idő!</h2><p>Ennyi csillagot gyűjtöttél a városban:</p><div class="result" id="total"></div><p id="summary"></p><button class="wide" id="again">Újra a volán mögé →</button><button class="wide secondary" id="home">Kezdőlap</button></div></div>
+<aside id="analyticsChoice" class="hidden" aria-label="Játékstatisztika">
+  <p>Engedélyezed a Google Analytics használatát? A mérés a játékindításokat, a befejezett meneteket és a csillagok számát követi.</p>
+  <button id="analyticsAllow">Engedélyezem</button>
+  <button id="analyticsDecline">Kihagyom</button>
+</aside>
 <script>
 'use strict';const $=id=>document.getElementById(id),cv=$('world'),ctx=cv.getContext('2d');let W,H,dpr;function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
 const SIZE=1920,STEP=320,ROAD=100,buildings=[],spots=[],keys={};let state='start',car={x:160,y:0,a:0,v:0},score=0,success=0,deadline=0,mini=null,last=0,toastUntil=0;const rand=n=>Math.floor(Math.random()*n);for(let x=0;x<SIZE;x+=STEP)for(let y=0;y<SIZE;y+=STEP){const hue=195+rand(35);buildings.push({x:x+68,y:y+68,w:184,h:184,hue,park:new Set([1,4,6,9,13,16,19,22,24,27,31,34]).has(x/STEP*6+y/STEP)});const id=x/STEP*6+y/STEP;const pools={0:[6,0],3:[1,9],8:[11,2,8],11:[10,5,3],14:[4,0],17:[1,6],18:[10,7,5],21:[11,8,2],26:[6,1],29:[9,4],30:[10,3,7],33:[5,8],13:[10,3,4,7],22:[11,9,2,8]};if(pools[id])spots.push({x:x+160,y:y+28,done:false,fixed:false,pool:pools[id],used:[],block:id,urgentUntil:0,location:buildings[id].park?'Parki hálózati állomás':TASKS_LABEL(pools[id][0])})}
 function TASKS_LABEL(t){return ['Elosztó','Iroda','Tetőantenna','Utcai szekrény','Elosztó','Kapcsolószekrény','Lakóház','Csomópont','Jelerősítő','Energiaelosztó','Kábelakna','Tetőantenna'][t]}
+
+const GTM_CONTAINER_ID = 'GTM-W9XZVP7C';
+const analyticsConfigured = location.protocol === 'https:';
+const analyticsChoiceKey = 'magenta-city-analytics';
+let analyticsChoice = null;
+let analyticsLoaded = false;
+
+function sendAnalytics(event, parameters = {}) {
+  if (analyticsLoaded && analyticsChoice === 'allow') {
+    window.dataLayer.push({...parameters, event});
+  }
+}
+
+function loadAnalytics() {
+  if (!analyticsConfigured || analyticsLoaded || analyticsChoice !== 'allow') return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
+  window.gtag('consent', 'update', {analytics_storage:'granted'});
+  window.dataLayer.push({'gtm.start': Date.now(), event:'gtm.js'});
+  const tag = document.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtm.js?id='+GTM_CONTAINER_ID;
+  document.head.append(tag);
+  analyticsLoaded = true;
+}
+
+if (analyticsConfigured) {
+  try { analyticsChoice = localStorage.getItem(analyticsChoiceKey); } catch {}
+  $('analyticsSettings').classList.remove('hidden');
+  $('analyticsSettings').onclick = () => $('analyticsChoice').classList.remove('hidden');
+  if (!analyticsChoice) $('analyticsChoice').classList.remove('hidden');
+  loadAnalytics();
+  function setAnalyticsChoice(choice) {
+    analyticsChoice = choice;
+    try { localStorage.setItem(analyticsChoiceKey, choice); } catch {}
+    $('analyticsChoice').classList.add('hidden');
+    if (analyticsLoaded) {
+      window.gtag('consent', 'update', {analytics_storage:choice === 'allow' ? 'granted' : 'denied'});
+    } else {
+      loadAnalytics();
+    }
+  }
+  $('analyticsAllow').onclick = () => setAnalyticsChoice('allow');
+  $('analyticsDecline').onclick = () => setAnalyticsChoice('decline');
+}
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 $('play').onclick=$('again').onclick=reset;$('practiceButton').onclick=practiceMenu;
@@ -249,7 +313,11 @@ addEventListener('keydown', event => {
 });
 $('sound').onclick=()=>{initAudio();soundOn=!soundOn;$('sound').textContent='Hang: '+(soundOn?'BE':'KI')};$('home').onclick=()=>{state='start';showStartDetails(false, false);$('end').classList.add('hidden');$('start').classList.remove('hidden')};function keysClear(){Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('down'))}const keymap={ArrowUp:'go',w:'go',ArrowDown:'back',s:'back',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};addEventListener('keydown',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k){e.preventDefault();if(state==='mini'){return}else keys[k]=true}});addEventListener('keyup',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k)keys[k]=false});addEventListener('blur',keysClear);document.querySelectorAll('[data-key]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys[b.dataset.key]=true;b.classList.add('down')};b.onpointerup=b.onpointercancel=()=>{keys[b.dataset.key]=false;b.classList.remove('down')}});
 function valid(x,y){if(x<15||y<15||x>SIZE-15||y>SIZE-15)return false;return !buildings.some(b=>x>b.x-15&&x<b.x+b.w+15&&y>b.y-15&&y<b.y+b.h+15)}
-function finish(reason='time'){mini?.cleanup?.();$('damage').classList.add('hidden');$('endLabel').textContent=reason==='explosion'?'AZ AUTÓ MEGSEMMISÜLT':'MŰSZAK VÉGE';$('endTitle').textContent=reason==='explosion'?'Felrobbant az autód!':'Lejárt az idő!';$('urgent').classList.add('hidden');state='end';mini=null;keysClear();$('mini').classList.add('hidden');$('end').classList.remove('hidden');$('total').textContent='★ '+score;$('summary').textContent=success+' sikeres feladat • '+(reason==='explosion'?'18 ütközés után véget ért a műszak.':'Szép munka a városban!');$('controls').classList.add('hidden')}
+function finish(reason='time'){
+  if (!practice && (state === 'drive' || state === 'mini' || state === 'exploding')) {
+    sendAnalytics('game_end', {score, completed_tasks:success, end_reason:reason});
+  }
+  mini?.cleanup?.();$('damage').classList.add('hidden');$('endLabel').textContent=reason==='explosion'?'AZ AUTÓ MEGSEMMISÜLT':'MŰSZAK VÉGE';$('endTitle').textContent=reason==='explosion'?'Felrobbant az autód!':'Lejárt az idő!';$('urgent').classList.add('hidden');state='end';mini=null;keysClear();$('mini').classList.add('hidden');$('end').classList.remove('hidden');$('total').textContent='★ '+score;$('summary').textContent=success+' sikeres feladat • '+(reason==='explosion'?'18 ütközés után véget ért a műszak.':'Szép munka a városban!');$('controls').classList.add('hidden')}
 // Task catalogue: each first encounter has an untimed introduction.
 
 const TASKS = {
@@ -302,7 +370,7 @@ function drawCarDamage(t){if(collisionCount<10||state==='start'||state==='practi
 const ex=Math.cos(car.a)*17,ey=Math.sin(car.a)*17;for(let i=0;i<9;i++){const age=((t/1100+i*.173)%1),r=4+age*15,x=ex+Math.sin(i*2.4+age*2)*age*16,y=ey-age*56;ctx.globalAlpha=(1-age)*.55;ctx.fillStyle=collisionCount>=15?'#2b2829':'#a0aaa5';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}ctx.globalAlpha=1;
 if(collisionCount>=15)drawEngineFire(ex,ey,t);
 if(boom&&elapsed<1.35){const progress=Math.max(0,elapsed/1.35);ctx.globalAlpha=1-progress;ctx.strokeStyle='#ffd873';ctx.lineWidth=6*(1-progress)+1;ctx.beginPath();ctx.arc(0,0,10+progress*95,0,7);ctx.stroke();for(let i=0;i<18;i++){const a=i*2.399,r=progress*(60+(i%5)*16);ctx.fillStyle=i%2?'#ff6524':'#ffd65a';ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r,(1-progress)*(10+i%4*3)+1,0,7);ctx.fill()}ctx.globalAlpha=1}ctx.restore()}
-function reset(){mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+240000;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
+function reset(){sendAnalytics('game_start');mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+240000;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
 function availableTypes(s,t=performance.now()){return TASK_IDS.filter(i=>!usedTasks.has(i)&&(i!==9||s?.urgentUntil>t))}
 function canOfferTask(s,t=performance.now()){return !s.done&&(!!s.delivery||availableTypes(s,t).length>0)}
 function chooseType(s){const candidates=availableTypes(s);return candidates.length?candidates[rand(candidates.length)]:null}
