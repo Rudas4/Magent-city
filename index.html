@@ -1,6 +1,11 @@
 <!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Magenta City • Városi küldetés</title>
 <link rel="icon" type="image/png" href="logo.png">
 <style>
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 *{box-sizing:border-box}body{margin:0;background:#111925;color:#fff;font:16px system-ui;overflow:hidden;touch-action:none}canvas#world{width:100vw;height:100dvh;display:block}button{font:inherit;border:0;color:white;background:#e20074;border-radius:12px;padding:14px 22px;cursor:pointer;touch-action:none;font-weight:750}button:focus-visible{outline:3px solid #fff}button:disabled{opacity:.35}h1{font-size:clamp(38px,8vw,74px);line-height:1;margin:20px 0}p{line-height:1.6;color:#b8c5d7}.overlay{position:fixed;inset:0;background:#0a1022d9;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(7px);z-index:5}.hidden{display:none!important}.card{width:min(560px,100%);max-height:94dvh;overflow:auto;background:#182335;border:1px solid #3a465a;border-radius:24px;padding:clamp(22px,5vw,40px);box-shadow:0 25px 100px #0008}.eyebrow{color:#ff72bb;font-size:12px;letter-spacing:3px;font-weight:800}.tags{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tags span{padding:8px 12px;border:1px solid #475268;border-radius:9px;color:#dce6f2;font-size:13px}.wide{width:100%}.secondary{background:#314157;margin-top:12px}.hud{position:fixed;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}.pill{background:#111c2eea;border:1px solid #435169;border-radius:14px;padding:12px 18px;font-weight:800}.pill small{display:block;color:#aabace;font-size:10px;letter-spacing:2px;margin-bottom:3px}.hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;background:#111c2eea;padding:12px 18px;border-radius:12px;text-align:center;pointer-events:none;max-width:90vw;width:max-content}.controls{position:fixed;bottom:70px;left:18px;right:18px;display:flex;justify-content:space-between;pointer-events:none}.controls div{display:flex;gap:10px}.controls button{pointer-events:auto;width:62px;height:62px;padding:0;background:#182538de;border:1px solid #6e7b8f;font-size:24px;user-select:none}.controls button.down{background:#e20074}.minihead{display:flex;justify-content:space-between;align-items:center}.clock{color:#ff72bb;font-size:25px;font-weight:900}h2{margin-bottom:8px}#task{margin-top:20px}#status{min-height:25px;color:#ffb6d9;text-align:center;margin-top:15px}.pairs{display:flex;justify-content:space-between;gap:20px}.col{display:grid;gap:12px;width:44%}.socket{height:52px;border:2px solid #596780;background:#253348;padding:6px;font-size:19px}.socket.selected{outline:3px solid #fff}.socket.done{background:#184c42;border-color:#65d7b0}.maze{display:block;max-width:100%;height:auto;margin:auto;border-radius:10px}.pad{display:flex;justify-content:center;gap:8px;margin-top:12px}.pad button{padding:9px 16px;background:#35445d}.result{font-size:64px;font-weight:950;color:#ffd45a;margin:20px 0}.help{font-size:12px;color:#92a6bd;margin-top:18px}@media(max-height:600px){.card{padding:20px}.controls{bottom:58px}.socket{height:40px}.col{gap:6px}h2{margin:8px 0}.maze{max-height:200px;width:auto}}
 
 body{font-family:'Courier New',monospace}.pill{border-radius:3px;background:#151b11e8;border:2px solid #868b56;color:#e4e9a0;text-shadow:2px 2px #111}.pill small{color:#aeb780}.hint{border-radius:2px;border:1px solid #89905b;background:#151b11ed;color:#ece9b4}.controls button{border-radius:5px}.card{border-radius:6px;border:2px solid #777f56;background:#182019f5}button{border-radius:4px}.eyebrow{color:#ff72bb}.overlay{background:#0b130cc9;backdrop-filter:blur(2px)}canvas#world{image-rendering:pixelated}.hud .pill:first-child{max-width:36%}@media(max-width:550px){.hud{left:8px;right:8px;top:8px}.pill{padding:8px;font-size:12px}.pill small{font-size:8px;letter-spacing:1px}.hint{font-size:11px;padding:8px;bottom:17px}.controls{bottom:65px;left:10px;right:10px}.controls button{width:53px;height:53px}.hud .pill:first-child{max-width:33%}}
@@ -30,7 +35,7 @@ body{font-family:'Courier New',monospace}.pill{border-radius:3px;background:#151
 #startDetails { align-self: center; max-height: calc(100dvh - 48px); touch-action: pan-y; }
 #startDetails h2 { margin-top: 0; }
 #startDetails .tags { margin: 16px 0; }
-body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urgent) { visibility: hidden; }
+body:has(#start:not(.hidden), #practiceScreen:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urgent) { visibility: hidden; }
 #outro {
   z-index: 20;
   padding: 0;
@@ -55,7 +60,7 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
   color: #fff;
   text-align: center;
 }
-#end {
+#end, #practiceScreen {
   background-image: linear-gradient(#0b130c35, #0b130c35), url("hatter2.png");
   background-position: center;
   background-size: cover;
@@ -64,11 +69,9 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
 #end .card {
   background-color: #182019ed;
 }
-.practice-category h3 {
-  margin: 16px 0 6px;
-  color: #ffc1e0;
-  font-size: 1rem;
-}
+#practiceScreen .card { max-height: calc(100dvh - 36px); touch-action: pan-y; }
+#practiceScreen h2 { margin-top: 0; }
+#practiceBack { touch-action: pan-y; }
 #wiring, #floorplan, #flyerRange, #coffeeTray {
   display: block;
   width: 100%;
@@ -246,11 +249,18 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
     <h2 id="detailsTitle">Játék részletei</h2>
     <p>Retró utcák, élő forgalom, villámgyors feladatok. Parkolj a magenta jelzéseknél, teljesítsd a város változatos küldetéseit, és gyűjts csillagokat! A narancs sürgős címek dupla csillagot érnek.</p><div class="tags"><span>⏱ 4 perc</span><span>★ 5 csillag / feladat</span><span>15 minijáték</span></div>
     <div class="help">Gép: WASD vagy nyilak · Telefon: képernyőgombok<br>A feladatok alatt is telik az idő. Feladatonként 8–25 másodperc. Az első útmutató alatt áll az óra.<br>Vigyázz az autóra: 10 ütközés után füstöl, 15 után lángol, a 18.-nál felrobban!</div>
-    <button id="practiceButton" class="wide secondary">Minijátékok gyakorlása</button><div id="practiceList" class="hidden"></div>
     <button id="closeDetails" class="wide secondary">Vissza</button>
   </section>
 </div>
-<div id="damage" class="damage-indicator hidden" aria-live="polite">ÜTKÖZÉS 0 / 18 · ÉP AUTÓ</div><div class="overlay hidden" id="mini"><div class="card"><div class="minihead"><span class="eyebrow">VÁROSI FELADAT</span><span class="clock" id="mt">10</span></div><div class="task-timer"><i id="taskbar"></i></div><div id="deviceLabel" class="device-label">SZERVIZ MUNKAÁLLOMÁS</div><h2 id="title"></h2><p id="instruction" style="margin-top:0;font-size:14px"></p><div id="task"></div><div id="status" aria-live="polite"></div></div></div><div class="overlay hidden" id="end"><div class="card"><span class="eyebrow" id="endLabel">MŰSZAK VÉGE</span><h2 id="endTitle">Lejárt az idő!</h2><p>Ennyi csillagot gyűjtöttél a városban:</p><div class="result" id="total"></div><p id="summary"></p><button class="wide" id="again">Újra a volán mögé →</button><button class="wide secondary" id="home">Kezdőlap</button></div></div>
+<div id="damage" class="damage-indicator hidden" aria-live="polite">ÜTKÖZÉS 0 / 18 · ÉP AUTÓ</div><div class="overlay hidden" id="mini"><div class="card"><div class="minihead"><span class="eyebrow">VÁROSI FELADAT</span><span class="clock" id="mt">10</span></div><div class="task-timer"><i id="taskbar"></i></div><div id="deviceLabel" class="device-label">SZERVIZ MUNKAÁLLOMÁS</div><h2 id="title"></h2><p id="instruction" style="margin-top:0;font-size:14px"></p><div id="task"></div><div id="status" aria-live="polite"></div></div></div><div class="overlay hidden" id="end"><div class="card"><span class="eyebrow" id="endLabel">MŰSZAK VÉGE</span><h2 id="endTitle">Lejárt az idő!</h2><p>Ennyi csillagot gyűjtöttél a városban:</p><div class="result" id="total"></div><p id="summary"></p><button class="wide" id="again">Újra a volán mögé →</button><button class="wide secondary" id="practiceButton">Kipróbálom az összes játékot</button><button class="wide secondary" id="home">Kezdőlap</button></div></div>
+<div class="overlay hidden" id="practiceScreen" role="dialog" aria-modal="true" aria-labelledby="practiceTitle">
+  <section class="card">
+    <h2 id="practiceTitle" tabindex="-1">Minijátékok</h2>
+    <p>Válassz egy minijátékot a gyakorláshoz.</p>
+    <div id="practiceList"></div>
+    <button class="wide secondary" id="practiceBack">Vissza az eredményhez</button>
+  </section>
+</div>
 <div id="outro" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Férfinapi köszöntő">
   <video id="outroVideo" preload="none" playsinline></video>
   <div class="outro-actions">
@@ -260,7 +270,13 @@ body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urge
   </div>
 </div>
 <script>
-'use strict';const $=id=>document.getElementById(id),cv=$('world'),ctx=cv.getContext('2d');let W,H,dpr;function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+'use strict';
+document.body.addEventListener('contextmenu', event => {
+  if (event.pointerType === 'touch' || event.sourceCapabilities?.firesTouchEvents) {
+    event.preventDefault();
+  }
+});
+const $=id=>document.getElementById(id),cv=$('world'),ctx=cv.getContext('2d');let W,H,dpr;function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
 const SIZE=1920,STEP=320,ROAD=100,buildings=[],spots=[],keys={};let state='start',car={x:160,y:0,a:0,v:0},score=0,success=0,deadline=0,mini=null,last=0,toastUntil=0;const rand=n=>Math.floor(Math.random()*n);for(let x=0;x<SIZE;x+=STEP)for(let y=0;y<SIZE;y+=STEP){const hue=195+rand(35);buildings.push({x:x+68,y:y+68,w:184,h:184,hue,park:new Set([1,4,6,9,13,16,19,22,24,27,31,34]).has(x/STEP*6+y/STEP)});const id=x/STEP*6+y/STEP;const pools={0:[6,0],3:[1,9],8:[11,2,8],11:[10,5,3],14:[4,0],17:[1,6],18:[10,7,5],21:[11,8,2],26:[6,1],29:[9,4],30:[10,3,7],33:[5,8],13:[10,3,4,7],22:[11,9,2,8]};if(pools[id])spots.push({x:x+160,y:y+28,done:false,fixed:false,pool:pools[id],used:[],block:id,urgentUntil:0,location:buildings[id].park?'Parki hálózati állomás':TASKS_LABEL(pools[id][0])})}
 function TASKS_LABEL(t){return ['Elosztó','Iroda','Tetőantenna','Utcai szekrény','Elosztó','Kapcsolószekrény','Lakóház','Csomópont','Jelerősítő','Energiaelosztó','Kábelakna','Tetőantenna'][t]}
 
@@ -289,6 +305,13 @@ function sendAnalytics(event, parameters = {}) {
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 $('play').onclick=$('again').onclick=reset;$('practiceButton').onclick=practiceMenu;
+$('practiceBack').onclick = () => {
+  practice = false;
+  state = 'end';
+  $('practiceScreen').classList.add('hidden');
+  $('end').classList.remove('hidden');
+  $('practiceButton').focus();
+};
 function showStartDetails(open, focus = true) {
   $('startActions').classList.toggle('hidden', open);
   $('startDetails').classList.toggle('hidden', !open);
@@ -412,7 +435,6 @@ const TASKS = {
   18: ['Munkaruha', 'Öltöztesd fel Károlyt! Levi\'s farmer, fekete póló, fehér Károly-névkitűző, Converse cipő és magenta kulacs kell. Ha rossz darabot teszel a bábura, vége a minijátéknak.', 25, 'Öltöző', 'Üzlet', buildUniform]
 };
 const TASK_IDS = [0,3,5,6,7,8,10,9,13,11,14,12,15,16,18];
-const PRACTICE_CATEGORIES = ['Műszak', 'D2D', 'Üzlet'];
 spots.forEach(s=>s.baseLocation=s.location);
 const seen=new Set(),usedTasks=new Set();let lastType=-1,practice=false,slowUntil=0,nextUrgent=0,soundOn=true,audio=null,engine=null,engineGain=null,beepAt=0;
 function initAudio(){try{if(!audio){audio=new(window.AudioContext||window.webkitAudioContext)();engine=audio.createOscillator();engineGain=audio.createGain();engine.type='sawtooth';engineGain.gain.value=0;engine.connect(engineGain);engineGain.connect(audio.destination);engine.start()}audio.resume()}catch(e){}}
@@ -444,42 +466,35 @@ function drawCarDamage(t){if(collisionCount<10||state==='start'||state==='practi
 const ex=Math.cos(car.a)*17,ey=Math.sin(car.a)*17;for(let i=0;i<9;i++){const age=((t/1100+i*.173)%1),r=4+age*15,x=ex+Math.sin(i*2.4+age*2)*age*16,y=ey-age*56;ctx.globalAlpha=(1-age)*.55;ctx.fillStyle=collisionCount>=15?'#2b2829':'#a0aaa5';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}ctx.globalAlpha=1;
 if(collisionCount>=15)drawEngineFire(ex,ey,t);
 if(boom&&elapsed<1.35){const progress=Math.max(0,elapsed/1.35);ctx.globalAlpha=1-progress;ctx.strokeStyle='#ffd873';ctx.lineWidth=6*(1-progress)+1;ctx.beginPath();ctx.arc(0,0,10+progress*95,0,7);ctx.stroke();for(let i=0;i<18;i++){const a=i*2.399,r=progress*(60+(i%5)*16);ctx.fillStyle=i%2?'#ff6524':'#ffd65a';ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r,(1-progress)*(10+i%4*3)+1,0,7);ctx.fill()}ctx.globalAlpha=1}ctx.restore()}
-function reset(){sendAnalytics('game_start');mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+240000;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
+function reset(){sendAnalytics('game_start');mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+240000;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini','practiceScreen'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
 function availableTypes(s,t=performance.now()){return TASK_IDS.filter(i=>!usedTasks.has(i)&&(i!==9||s?.urgentUntil>t))}
 function canOfferTask(s,t=performance.now()){return !s.done&&(!!s.delivery||availableTypes(s,t).length>0)}
 function chooseType(s){const candidates=availableTypes(s);return candidates.length?candidates[rand(candidates.length)]:null}
-function openTask(s,forced){mini?.cleanup?.();initAudio();keysClear();car.v=0;const type=s?.delivery?9:(forced??chooseType(s));if(type===null)return;if(!practice&&!s?.delivery)usedTasks.add(type);mini={type,site:s,done:false,phase:'intro',pauseAt:performance.now(),count:0,selected:null,matched:new Set(),reward:s?.delivery?s.delivery.reward:(s&&s.urgentUntil>performance.now()?10:5)};state='mini';$('controls').classList.add('hidden');$('mini').classList.remove('hidden');$('status').textContent='';$('deviceLabel').textContent=TASKS[type][4].toUpperCase()+' • '+TASKS[type][3];$('title').textContent=TASKS[type][0];$('instruction').textContent=s?.delivery?'Megérkeztél a találkozási pontra. Jelezd az érkezésed!':TASKS[type][1];$('mt').textContent=TASKS[type][2]+' s';if(practice||!seen.has(type)){$('task').innerHTML='<div class="brief">'+(practice?'GYAKORLÁS · NINCS PONTVERSENY':'ELSŐ ALKALOM · AZ ÓRA MOST ÁLL')+'<p>'+TASKS[type][3]+' • '+TASKS[type][2]+' másodperc • '+mini.reward+' csillag</p></div><button class="wide" id="beginTask">Értem, kezdhetjük →</button>';$('beginTask').onclick=beginTask}else beginTask()}
+function openTask(s,forced){mini?.cleanup?.();initAudio();keysClear();car.v=0;const type=s?.delivery?9:(forced??chooseType(s));if(type===null)return;if(!practice&&!s?.delivery)usedTasks.add(type);mini={type,site:s,done:false,phase:'intro',pauseAt:performance.now(),count:0,selected:null,matched:new Set(),reward:s?.delivery?s.delivery.reward:(s&&s.urgentUntil>performance.now()?10:5)};state='mini';$('controls').classList.add('hidden');$('mini').classList.remove('hidden');$('status').textContent='';$('deviceLabel').textContent=TASKS[type][3];$('title').textContent=TASKS[type][0];$('instruction').textContent=s?.delivery?'Megérkeztél a találkozási pontra. Jelezd az érkezésed!':TASKS[type][1];$('mt').textContent=TASKS[type][2]+' s';if(practice||!seen.has(type)){$('task').innerHTML='<div class="brief">'+(practice?'GYAKORLÁS · NINCS PONTVERSENY':'ELSŐ ALKALOM · AZ ÓRA MOST ÁLL')+'<p>'+TASKS[type][3]+' • '+TASKS[type][2]+' másodperc • '+mini.reward+' csillag</p></div><button class="wide" id="beginTask">Értem, kezdhetjük →</button>';$('beginTask').onclick=beginTask}else beginTask()}
 function beginTask(){if(!mini||mini.phase!=='intro')return;const now=performance.now();if(!practice){const paused=now-mini.pauseAt;deadline+=paused;nextUrgent+=paused;spots.forEach(s=>{if(s.urgentUntil)s.urgentUntil+=paused})}seen.add(mini.type);mini.phase='play';mini.started=now;mini.end=now+TASKS[mini.type][2]*1000;mini.data={};$('task').innerHTML='';TASKS[mini.type][5]();decorateTask();tone(500)}
 function resolve(ok,failure='Nem sikerült időben'){if(!mini||mini.done||mini.phase!=='play')return;if(ok&&performance.now()>=mini.end)ok=false;const transfer=mini.type===9&&mini.site?.delivery;if(transfer){transfer.source.pending=false;transfer.source.fixed=ok;transfer.source.failed=!ok;mini.site.location=mini.site.baseLocation;mini.site.delivery=null}mini.done=true;mini.cleanup?.();$('mini').classList.remove('time-critical');$('mini').classList.add(ok?'task-success':'task-failed');mini.close=performance.now()+1300;if(ok&&!practice){score+=mini.reward;success++;$('score').textContent='★ '+score}if(mini.site){mini.site.done=true;mini.site.fixed=ok;mini.site.failed=!ok;mini.site.urgentUntil=0}if(ok){tone(700,.13);setTimeout(()=>tone(1000,.15),130)}else tone(160,.25);$('status').textContent=ok?(practice?'Sikeres gyakorlás!':(TASKS[mini.type][4]==='Műszak'?'Szolgáltatás helyreállítva!':'Feladat teljesítve!')+' +'+mini.reward+' ★'):failure+' • +0 ★';$('task').querySelectorAll('button,input').forEach(b=>b.disabled=true)}
 
 function practiceMenu() {
   mini?.cleanup?.();
-  showStartDetails(true, false);
-  $('damage').classList.add('hidden');
-  $('urgent').classList.add('hidden');
   practice = true;
   state = 'practice';
   mini = null;
   keysClear();
-  $('start').classList.remove('hidden');
   $('end').classList.add('hidden');
   $('mini').classList.add('hidden');
+  $('practiceScreen').classList.remove('hidden');
   const list = $('practiceList');
-  list.classList.remove('hidden');
-  list.innerHTML = '<p>Próbáld ki bármelyik feladatot! A műszak órája nem indul el.</p>' +
-    PRACTICE_CATEGORIES.map(category => {
-      const lessons = TASK_IDS.filter(id => TASKS[id][4] === category).map(id => {
-        const [name, , seconds] = TASKS[id];
-        return '<button class="lesson" data-lesson="'+id+'">'+name+' <span>'+seconds+' s →</span></button>';
-      });
-      return '<section class="practice-category"><h3>'+category+'</h3>'+lessons.join('')+'</section>';
-    }).join('');
+  list.innerHTML = TASK_IDS.map(id => {
+    const [name, , seconds] = TASKS[id];
+    return '<button class="lesson" data-lesson="'+id+'">'+name+' <span>'+seconds+' s →</span></button>';
+  }).join('');
   list.querySelectorAll('[data-lesson]').forEach(button => {
     button.onclick = () => {
-      $('start').classList.add('hidden');
+      $('practiceScreen').classList.add('hidden');
       openTask(null, Number(button.dataset.lesson));
     };
   });
+  $('practiceTitle').focus();
 }
 function buildFaultFinder() {
   const d = mini.data;
