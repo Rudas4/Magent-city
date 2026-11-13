@@ -1,0 +1,1492 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Magenta City • Városi küldetés</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111925;color:#fff;font:16px system-ui;overflow:hidden;touch-action:none}canvas#world{width:100vw;height:100dvh;display:block}button{font:inherit;border:0;color:white;background:#e20074;border-radius:12px;padding:14px 22px;cursor:pointer;touch-action:none;font-weight:750}button:focus-visible{outline:3px solid #fff}button:disabled{opacity:.35}h1{font-size:clamp(38px,8vw,74px);line-height:1;margin:20px 0}p{line-height:1.6;color:#b8c5d7}.overlay{position:fixed;inset:0;background:#0a1022d9;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(7px);z-index:5}.hidden{display:none!important}.card{width:min(560px,100%);max-height:94dvh;overflow:auto;background:#182335;border:1px solid #3a465a;border-radius:24px;padding:clamp(22px,5vw,40px);box-shadow:0 25px 100px #0008}.eyebrow{color:#ff72bb;font-size:12px;letter-spacing:3px;font-weight:800}.tags{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tags span{padding:8px 12px;border:1px solid #475268;border-radius:9px;color:#dce6f2;font-size:13px}.wide{width:100%}.secondary{background:#314157;margin-top:12px}.hud{position:fixed;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}.pill{background:#111c2eea;border:1px solid #435169;border-radius:14px;padding:12px 18px;font-weight:800}.pill small{display:block;color:#aabace;font-size:10px;letter-spacing:2px;margin-bottom:3px}.hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-size:13px;color:#fff;background:#111c2eea;padding:12px 18px;border-radius:12px;text-align:center;pointer-events:none;max-width:90vw;width:max-content}.controls{position:fixed;bottom:70px;left:18px;right:18px;display:flex;justify-content:space-between;pointer-events:none}.controls div{display:flex;gap:10px}.controls button{pointer-events:auto;width:62px;height:62px;padding:0;background:#182538de;border:1px solid #6e7b8f;font-size:24px;user-select:none}.controls button.down{background:#e20074}.minihead{display:flex;justify-content:space-between;align-items:center}.clock{color:#ff72bb;font-size:25px;font-weight:900}h2{margin-bottom:8px}#task{margin-top:20px}#status{min-height:25px;color:#ffb6d9;text-align:center;margin-top:15px}.pairs{display:flex;justify-content:space-between;gap:20px}.col{display:grid;gap:12px;width:44%}.socket{height:52px;border:2px solid #596780;background:#253348;padding:6px;font-size:19px}.socket.selected{outline:3px solid #fff}.socket.done{background:#184c42;border-color:#65d7b0}.maze{display:block;max-width:100%;height:auto;margin:auto;border-radius:10px}.pad{display:flex;justify-content:center;gap:8px;margin-top:12px}.pad button{padding:9px 16px;background:#35445d}.result{font-size:64px;font-weight:950;color:#ffd45a;margin:20px 0}.help{font-size:12px;color:#92a6bd;margin-top:18px}@media(max-height:600px){.card{padding:20px}.controls{bottom:58px}.socket{height:40px}.col{gap:6px}h2{margin:8px 0}.maze{max-height:200px;width:auto}}
+
+body{font-family:'Courier New',monospace}.pill{border-radius:3px;background:#151b11e8;border:2px solid #868b56;color:#e4e9a0;text-shadow:2px 2px #111}.pill small{color:#aeb780}.hint{border-radius:2px;border:1px solid #89905b;background:#151b11ed;color:#ece9b4}.controls button{border-radius:5px}.card{border-radius:6px;border:2px solid #777f56;background:#182019f5}button{border-radius:4px}.eyebrow{color:#ff72bb}.overlay{background:#0b130cc9;backdrop-filter:blur(2px)}canvas#world{image-rendering:pixelated}.hud .pill:first-child{max-width:36%}@media(max-width:550px){.hud{left:8px;right:8px;top:8px}.pill{padding:8px;font-size:12px}.pill small{font-size:8px;letter-spacing:1px}.hint{font-size:11px;padding:8px;bottom:17px}.controls{bottom:65px;left:10px;right:10px}.controls button{width:53px;height:53px}.hud .pill:first-child{max-width:33%}}
+.brief{background:#25382b;padding:16px;border-left:3px solid #ff70bb;margin-bottom:14px;font-size:12px}.brief p{margin-bottom:0}.instrument{background:#102521;text-align:center;padding:20px}.instrument strong{display:block;font-size:32px;color:#9bffbd}.instrument span{font-size:30px}.bar{height:14px;background:#3a4840;margin-top:14px}.bar i{display:block;background:#66e4a1;height:100%}.sliderlabel{display:block;font-size:13px;margin-top:18px}input[type=range]{display:block;width:100%;height:44px;accent-color:#e20074;touch-action:none}.feedback{font-size:13px;text-align:center;min-height:24px}#instrument,#floorplan{width:100%;height:auto;display:block;touch-action:none}.modules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.modules button{background:#344539;border:2px solid #63785f;font-size:13px;padding:18px 8px}.led{display:block;background:#537364;width:12px;height:12px;margin:8px auto 0;border-radius:50%}.bad{background:#863c39!important}.bad .led{background:#ff6c68;box-shadow:0 0 15px #ff4444}.repaired{background:#236b48!important}.repaired .led{background:#87ffb4}.sequence{text-align:center;background:#314a3c;color:#ffdb8e;padding:14px;margin-bottom:18px;font-size:18px}.route{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:300px;margin:auto}.route button{padding:0;background:#253c35;aspect-ratio:1;min-height:50px}.route svg{display:block;width:100%;height:100%}.route .endpoint{outline:2px solid #7ee8a4}.lesson{display:block;width:100%;text-align:left;padding:12px;background:#2c3e30;margin-bottom:5px;font-size:12px}.lesson span{float:right;color:#a7f3be}#play{margin-top:12px}#sound{position:fixed;top:95px;left:18px;font-size:11px;padding:8px;background:#273b2be6;z-index:3}#urgent{position:fixed;top:18px;left:50%;transform:translateX(-50%);padding:8px;background:#252c18e6;color:#ffd078;font-size:11px;pointer-events:none;max-width:65%;text-align:center}@media(max-height:600px){.card{max-height:96dvh}.route{max-width:200px}#floorplan{max-height:200px;width:auto;max-width:100%;margin:auto}#instrument{max-height:110px;width:auto;max-width:100%;margin:auto}.modules button{padding:10px 6px}}@media(max-width:550px){#urgent{top:8px;font-size:10px;max-width:calc(100% - 220px);left:50%;right:auto;transform:translateX(-50%)}#sound{top:78px;left:8px}.card{padding:20px}.sequence{font-size:14px}}
+
+#mini .card{background:linear-gradient(145deg,#26312d,#121c1b);border:2px solid #697b70;box-shadow:0 24px 90px #000c,inset 0 0 0 5px #ffffff06}#mini .eyebrow{color:#b3c9b9}#mini h2{font-size:clamp(19px,4vw,25px)}.device-label{font-size:10px;color:#8ea69a;letter-spacing:1px;margin-top:16px}.task-timer{height:5px;background:#060f0c;margin-top:16px}.task-timer i{display:block;height:100%;width:100%;background:#79e6ae;transition:width .1s linear}.time-critical .task-timer i{background:#ff715e}.time-critical .clock{color:#ff775e;animation:alarm .6s infinite alternate}.workbench{position:relative;border:1px solid #445c50;padding:16px;background:repeating-linear-gradient(0deg,#18251f,#18251f 19px,#1c2b24 20px);box-shadow:inset 0 0 20px #0006}.pairs{position:relative;padding:20px 9px;background:linear-gradient(135deg,#38443f,#172720);border:3px solid #54645c}.col{position:relative;z-index:2;width:38%;gap:16px}.socket{font-size:15px;height:48px;background:linear-gradient(#53635b,#293830);border:2px solid #819185;border-radius:5px;box-shadow:0 3px 0 #0c1711;position:relative}.socket::before{content:'';position:absolute;left:3px;top:3px;width:3px;height:3px;background:#a7b7a9;box-shadow:0 34px #a7b7a9}.socket.done{color:#a6ffd0!important;border-color:#72e7ab;background:#23513b;box-shadow:0 0 12px #48ec8a33}.socket.selected{outline:2px solid #ffb2d9;box-shadow:0 0 13px #e2007466}.cable-art{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}#task[data-kind="1"] .pairs::before{content:'ROUTER • LINK / ACT';position:absolute;top:3px;left:10px;font-size:9px;color:#b8c9bc}#task[data-kind="1"] .socket{font-size:12px;border-radius:3px;border-bottom:5px solid #b9b7a2}#diagnostic{display:block;width:100%;height:auto;border:3px solid #54615c;margin-bottom:8px}.instrument{padding:8px;border:4px solid #67716a;border-radius:8px;box-shadow:inset 0 0 20px #0009}.instrument strong{font-family:monospace;color:#a1ffbc;text-shadow:0 0 8px #7ceab666}.bar{background:repeating-linear-gradient(90deg,#152920 0 12px,#456052 13px 14px)}.modules{padding:12px;background:#0e1915;border:3px solid #768578;gap:8px}.modules button{position:relative;background:linear-gradient(90deg,#64756a,#293d32 15%,#3e5446 80%,#6a7c6f);border:2px solid #9baa96;box-shadow:0 4px 0 #07140b;min-height:95px}.modules button::before{content:'⊕';position:absolute;top:3px;left:4px;font-size:11px;color:#9daf9f}.modules small{font-size:8px;display:block;color:#9db5a3;margin-top:5px}.vent{display:block;font-size:15px;color:#11291b;letter-spacing:2px;margin-top:5px}.power button{background:linear-gradient(#58695d,#1d3426);border-top:7px solid #9fae99}.battery-icon{display:block;font-size:16px;color:#80b08b;margin:10px 0}.power .repaired .battery-icon{color:#a4ffba;filter:drop-shadow(0 0 5px #6f9)}.led{width:8px;height:8px}.route{padding:10px;background:#14231c;border:4px solid #5c7261}.route button{background:radial-gradient(#344e3e,#172c20);border:1px solid #657563;box-shadow:inset 0 0 0 3px #253c2b}.route .endpoint{box-shadow:0 0 13px #65ef9633}.task-success .card{border-color:#70ecaa;box-shadow:0 0 50px #57e99433}.task-success #status{padding:12px;background:#1d5437;color:#b7ffd4;font-weight:bold}.task-failed #status{padding:12px;background:#542d2b;color:#ffc4ba}.contact-hit{animation:contact .4s ease-out}.sequence{border:2px solid #7b8d7a;color:#a6ffbb;font-family:monospace;box-shadow:inset 0 0 14px #0007}#instrument,#floorplan{border:4px solid #718278;border-radius:5px}#mini button.wide{border-bottom:4px solid #74013c;box-shadow:0 3px 12px #0004}@keyframes alarm{to{opacity:.45}}@keyframes contact{0%{box-shadow:inset 0 0 60px #ccffeb}100%{box-shadow:inset 0 0 0 transparent}}@media(max-height:650px){.workbench{padding:8px}.modules button{min-height:70px;padding:10px 6px}.vent{margin:0}.device-label{margin-top:8px}#diagnostic{max-height:80px;object-fit:contain}.pairs{padding:16px 5px}.col{gap:8px}.socket{height:40px}}@media(max-width:500px){.workbench{padding:8px}.socket{font-size:11px}.modules{padding:6px}.modules button{font-size:11px}.power small{font-size:7px}.col{width:40%}}
+#cableMaze,#towerAim{display:block;width:100%;height:auto;max-height:none;object-fit:fill;border:3px solid #6e8879;touch-action:none;user-select:none;cursor:crosshair;background:#102820}#cableMaze{max-height:none}.tower-target{font-size:12px;background:#132b21;padding:10px;margin-bottom:8px;color:#b3c9b3;text-align:center}.tower-target strong{color:#ffb4d9}.tower-pad{margin-top:8px}.tower-pad button{min-width:48px;min-height:40px}.aim-lock{height:7px;background:#14221b}.aim-lock i{display:block;width:0;height:100%;background:#87ffb3}#task[data-kind="10"] .secondary{padding:9px;font-size:12px}@media(max-height:600px){#cableMaze{max-height:none;width:100%;max-width:64.5dvh;margin:auto}#towerAim{max-height:none;width:100%;max-width:58.8dvh;margin:auto}.tower-pad button{min-height:32px;padding:6px 14px}.tower-target{padding:6px}}
+#wiring,#partsBench{display:block;width:100%;height:auto;touch-action:none;cursor:grab;border:3px solid #718575;background:#14291c;user-select:none}.signal-channels{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;padding:10px;background:#0e2019}.signal-channel{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:11px;color:#c5dacb;min-width:0}.signal-channel strong{color:#9aefb7}.level-target{font-size:10px;white-space:nowrap}.channel-track{position:relative;width:35px;height:120px;background:#203d2e;border:1px solid #5c7965;overflow:hidden}.channel-track i{position:absolute;bottom:0;left:0;right:0;height:0;background:#e20074}.channel-track b{position:absolute;left:0;right:0;height:3px;background:#e8f6b5;box-shadow:0 0 8px #fff}.signal-channel input{width:100%;margin:0;height:38px}.signal-channel output{color:#a9ffca;font-weight:bold}.power-instruction{padding:12px;background:#233d2b;color:#d4eccb;text-align:center;font-size:12px;margin-bottom:12px}.power-switches{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.power-switch{background:#26382c;border:2px solid #567361;padding:12px;font-size:12px;text-align:center}.power-target{border-color:#ffe08c;box-shadow:0 0 15px #ffb83d33}.power-target .led{background:#ffdc77;box-shadow:0 0 9px #ffdf76}.power-switch input{height:42px;width:100%}.power-switch small{color:#9fb99f}.receiver{background:#142c20;padding:22px;border:2px solid #a4c190}.receiver strong{display:block;font-size:12px;text-align:center;color:#b8f3c9;margin:15px 0}.receiver-led{display:block;margin:auto;width:18px;height:18px;background:#ffcb59;border-radius:50%;box-shadow:0 0 15px #ffbb59}.receiver .aim-lock{margin:16px 0}.receiver .wide{font-size:13px}@media(max-height:600px){#wiring{max-width:56dvh;margin:auto}#partsBench{max-width:56dvh;margin:auto}.channel-track{height:70px}.signal-channel{gap:5px}.power-switch{padding:7px}.receiver{padding:10px}}
+.damage-indicator{position:fixed;top:132px;left:18px;padding:8px 10px;background:#151b11e8;border:1px solid #868b56;font-size:11px;color:#c7dfac;pointer-events:none;z-index:3}.damage-indicator[data-stage="smoke"]{color:#ffd078;border-color:#d5a55b}.damage-indicator[data-stage="fire"],.damage-indicator[data-stage="exploded"]{color:#ff9477;border-color:#f16c51}@media(max-width:550px){.damage-indicator{top:113px;left:8px;font-size:10px;padding:6px}}@media(prefers-reduced-motion:reduce){.damage-indicator{animation:none}}
+#start {
+  align-items: flex-end;
+  padding: 16px 16px calc(clamp(16px, 4vh, 40px) + env(safe-area-inset-bottom));
+  background-color: #0b130c55;
+  background-image: linear-gradient(to top, #080b10cf, transparent 40%), url("hatter1.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  backdrop-filter: none;
+}
+.start-actions {
+  display: grid;
+  gap: 10px;
+  width: min(360px, 100%);
+}
+.start-actions #play, .start-actions #detailsButton { margin: 0; }
+.start-actions #detailsButton { background: #182335ef; border: 1px solid #9babbc; }
+#startDetails { align-self: center; max-height: calc(100dvh - 48px); touch-action: pan-y; }
+#startDetails h2 { margin-top: 0; }
+#startDetails .tags { margin: 16px 0; }
+body:has(#start:not(.hidden)) :is(.hud, #sound, #hint, #controls, #damage, #urgent) { visibility: hidden; }
+#end {
+  background-image: linear-gradient(#0b130c35, #0b130c35), url("hatter2.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#end .card {
+  background-color: #182019ed;
+}
+.practice-category h3 {
+  margin: 16px 0 6px;
+  color: #ffc1e0;
+  font-size: 1rem;
+}
+#wiring, #floorplan, #flyerRange, #coffeeTray {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  touch-action: none;
+  background: #10251d;
+}
+#wiring { max-width: min(100%, 48dvh); }
+#floorplan { max-width: min(100%, 62dvh); max-height: none; }
+#flyerRange, #coffeeTray { max-width: min(100%, 64dvh); }
+.router-options { display: flex; gap: 8px; margin-bottom: 8px; }
+.router-options button { flex: 1; padding: 8px; }
+.router-options [aria-pressed="true"] { outline: 2px solid #f5e9ed; }
+.delivery-card { text-align: center; }
+.delivery-card .phone { font-size: 38px; margin: 8px; }
+.lesson { touch-action: pan-y; }
+.challenge-canvas {
+  display: block;
+  width: 100%;
+  max-width: min(100%,58dvh);
+  margin: auto;
+  height: auto;
+  touch-action: none;
+  border-radius: 8px;
+}
+.mini-arrows, .stock-grid, .price-display, .buyer-list {
+  display: grid;
+  gap: 7px;
+  margin: 8px 0;
+}
+.mini-arrows { grid-template-columns: repeat(4,1fr); }
+.mini-arrows button { font-size: 20px; min-height: 42px; padding: 5px; touch-action: none; }
+.stock-grid, .price-display { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.buyer-list { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.stock-item, .drop-slot, .buyer {
+  border: 1px solid #70837d;
+  background: #263c43;
+  padding: 7px;
+  min-height: 36px;
+  font-size: clamp(10px,3vw,14px);
+  overflow-wrap: anywhere;
+}
+.stock-item { touch-action: none; cursor: grab; }
+.stock-item small, .buyer span { display: block; }
+.stock-item.selected-item { outline: 2px solid #ff72b5; background: #57354e; }
+.drop-slot { border-style: dashed; width: 100%; }
+.placed-item:disabled, .outfit-slot.worn { opacity: 1; }
+.placed-item { color: #a9ffce; border-style: solid; }
+.drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  transform: translate(-50%,-115%);
+  background: #392137;
+  color: #fff;
+  border: 1px solid #ff72b5;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: bold 13px system-ui,sans-serif;
+}
+.order-slip { margin: 4px 0; background: #fff1cf; color: #31271c; border-radius: 6px; padding: 9px; }
+.incoming-call .phone { animation: phone-ring 1.9s ease-in-out infinite; }
+#floorplan { cursor: grab; }
+#floorplan:active { cursor: grabbing; }
+#floorplan:focus-visible { outline: 2px solid #85e3c8; }
+.meeting-arrival progress { width: 100%; margin-top: 12px; accent-color: #51d5bb; }
+.meeting-arrival #arrivalStatus { min-height: 2.5em; margin: 8px 0 0; }
+#confirmArrival { touch-action: none; user-select: none; }
+@keyframes phone-ring { 30% { transform: rotate(-12deg); } 70% { transform: rotate(12deg); } }
+.door-wall {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 5px;
+  border-bottom: 12px solid #607175;
+  padding: 16px 6px 0;
+  background: repeating-linear-gradient(#6d554e 0 13px,#4d3c38 13px 15px);
+}
+.door {
+  position: relative;
+  min-height: 112px;
+  border: 3px solid #242a2b;
+  background: linear-gradient(90deg,#553528,#915e3b 52%,#67442e);
+  text-align: center;
+  padding-top: 10px;
+}
+.door-number { color: #ffebce; font-weight: bold; }
+.door .doorbell {
+  position: absolute;
+  top: 48%;
+  right: -2px;
+  min-width: 27px;
+  min-height: 40px;
+  padding: 0;
+  color: #fff;
+  background: #273235;
+  border: 1px solid #b8b9af;
+}
+.doorbell[data-light="green"] { background: #218854; box-shadow: 0 0 12px #65ffa1; }
+.doorbell[data-light="red"] { background: #a32842; box-shadow: 0 0 12px #ff627a; }
+.phone-stand { background: #ddd4c0; color: #292529; border-radius: 7px; padding: 7px; text-align: center; }
+.display-phone {
+  height: 64px;
+  width: 36px;
+  margin: 3px auto 5px;
+  background: linear-gradient(125deg,#2f689b,#b54987);
+  border: 3px solid #28303d;
+  border-radius: 7px;
+}
+.phone-stand:nth-child(2) .display-phone { background: linear-gradient(145deg,#403473,#58b6ad); }
+.phone-stand strong { display: block; margin-bottom: 5px; font-size: 13px; }
+.phone-stand .old-price { background: #f5e8bb; color: #4d3023; padding: 6px; font-size: 12px; box-shadow: 2px 2px #9b8658; }
+.uniform-room {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(5px,2vw,12px);
+  align-items: center;
+}
+.mannequin {
+  width: 100%;
+  max-width: 215px;
+  aspect-ratio: 10/13;
+  position: relative;
+  margin: auto;
+  border: 1px solid #586963;
+  border-radius: 9px;
+  background: radial-gradient(ellipse at 50% 35%,#536665,#253536 66%,#182728);
+}
+#uniformFigure { display: block; width: 100%; height: auto; pointer-events: none; }
+.wardrobe {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 4px;
+}
+.wardrobe .stock-item {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 2px 3px 4px;
+  border-radius: 6px;
+  line-height: 1.1;
+  font-size: clamp(9px,2vw,12px);
+  background: linear-gradient(#33464a,#23343a);
+}
+.wardrobe .stock-item.selected-item { background: #57354e; }
+.wardrobe canvas { width: min(100%,57px); height: 28px; object-fit: contain; pointer-events: none; }
+.outfit-slot {
+  position: absolute;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 5px;
+  background: #ffffff0d;
+  border: 1px dashed #e9f0e882;
+}
+.outfit-slot:hover, .outfit-slot:focus-visible { border-color: #ff9dcb; background: #ff8dbe2e; }
+.outfit-slot.worn { border-color: transparent; background: transparent; }
+.outfit-shirt { left: 33%; top: 27%; width: 34%; height: 23%; }
+.outfit-badge { left: 53%; top: 31%; width: 17%; height: 9%; z-index: 1; }
+.outfit-jeans { left: 34%; top: 51%; width: 32%; height: 36%; }
+.outfit-shoes { left: 27%; top: 88%; width: 46%; height: 9%; }
+.outfit-bottle { left: 73%; top: 47%; width: 17%; height: 17%; }
+@media (prefers-reduced-motion:reduce) { .incoming-call .phone { animation: none; } }
+</style></head><body><canvas id="world"></canvas><div class="hud"><div class="pill"><small>HÁTRALÉVŐ IDŐ</small><span id="time">04:00</span></div><div class="pill"><small>CSILLAGOK</small><span id="score">★ 0</span></div></div><button id="sound" aria-label="Hang kapcsolása">Hang: BE</button><div id="urgent" class="hidden"></div><div class="hint" id="hint">Állj meg egy magenta ! jelzésnél</div><div class="controls" id="controls"><div><button data-key="left" aria-label="Balra">◀</button><button data-key="right" aria-label="Jobbra">▶</button></div><div><button data-key="back" aria-label="Fék és tolatás">▼</button><button data-key="go" aria-label="Gáz">▲</button></div></div>
+<div class="overlay" id="start">
+  <div id="startActions" class="start-actions">
+    <button id="play" class="wide">Indulhat a küldetés</button>
+    <button id="detailsButton" class="wide secondary" aria-controls="startDetails" aria-expanded="false">Játék részletei</button>
+  </div>
+  <section id="startDetails" class="card hidden" aria-labelledby="detailsTitle">
+    <h2 id="detailsTitle">Játék részletei</h2>
+    <p>Retró utcák, élő forgalom, villámgyors feladatok. Parkolj a magenta jelzéseknél, teljesítsd a város változatos küldetéseit, és gyűjts csillagokat! A narancs sürgős címek dupla csillagot érnek.</p><div class="tags"><span>⏱ 4 perc</span><span>★ 5 csillag / feladat</span><span>15 minijáték</span></div>
+    <div class="help">Gép: WASD vagy nyilak · Telefon: képernyőgombok<br>A feladatok alatt is telik az idő. Feladatonként 8–25 másodperc. Az első útmutató alatt áll az óra.<br>Vigyázz az autóra: 10 ütközés után füstöl, 15 után lángol, a 18.-nál felrobban!</div>
+    <button id="practiceButton" class="wide secondary">Minijátékok gyakorlása</button><div id="practiceList" class="hidden"></div>
+    <button id="closeDetails" class="wide secondary">Vissza</button>
+  </section>
+</div>
+<div id="damage" class="damage-indicator hidden" aria-live="polite">ÜTKÖZÉS 0 / 18 · ÉP AUTÓ</div><div class="overlay hidden" id="mini"><div class="card"><div class="minihead"><span class="eyebrow">VÁROSI FELADAT</span><span class="clock" id="mt">10</span></div><div class="task-timer"><i id="taskbar"></i></div><div id="deviceLabel" class="device-label">SZERVIZ MUNKAÁLLOMÁS</div><h2 id="title"></h2><p id="instruction" style="margin-top:0;font-size:14px"></p><div id="task"></div><div id="status" aria-live="polite"></div></div></div><div class="overlay hidden" id="end"><div class="card"><span class="eyebrow" id="endLabel">MŰSZAK VÉGE</span><h2 id="endTitle">Lejárt az idő!</h2><p>Ennyi csillagot gyűjtöttél a városban:</p><div class="result" id="total"></div><p id="summary"></p><button class="wide" id="again">Újra a volán mögé →</button><button class="wide secondary" id="home">Kezdőlap</button></div></div>
+<script>
+'use strict';const $=id=>document.getElementById(id),cv=$('world'),ctx=cv.getContext('2d');let W,H,dpr;function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+const SIZE=1920,STEP=320,ROAD=100,buildings=[],spots=[],keys={};let state='start',car={x:160,y:0,a:0,v:0},score=0,success=0,deadline=0,mini=null,last=0,toastUntil=0;const rand=n=>Math.floor(Math.random()*n);for(let x=0;x<SIZE;x+=STEP)for(let y=0;y<SIZE;y+=STEP){const hue=195+rand(35);buildings.push({x:x+68,y:y+68,w:184,h:184,hue,park:new Set([1,4,6,9,13,16,19,22,24,27,31,34]).has(x/STEP*6+y/STEP)});const id=x/STEP*6+y/STEP;const pools={0:[6,0],3:[1,9],8:[11,2,8],11:[10,5,3],14:[4,0],17:[1,6],18:[10,7,5],21:[11,8,2],26:[6,1],29:[9,4],30:[10,3,7],33:[5,8],13:[10,3,4,7],22:[11,9,2,8]};if(pools[id])spots.push({x:x+160,y:y+28,done:false,fixed:false,pool:pools[id],used:[],block:id,urgentUntil:0,location:buildings[id].park?'Parki hálózati állomás':TASKS_LABEL(pools[id][0])})}
+function TASKS_LABEL(t){return ['Elosztó','Iroda','Tetőantenna','Utcai szekrény','Elosztó','Kapcsolószekrény','Lakóház','Csomópont','Jelerősítő','Energiaelosztó','Kábelakna','Tetőantenna'][t]}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+$('play').onclick=$('again').onclick=reset;$('practiceButton').onclick=practiceMenu;
+function showStartDetails(open, focus = true) {
+  $('startActions').classList.toggle('hidden', open);
+  $('startDetails').classList.toggle('hidden', !open);
+  $('detailsButton').setAttribute('aria-expanded', String(open));
+  if (focus) $(open ? 'closeDetails' : 'detailsButton').focus();
+}
+$('detailsButton').onclick = () => showStartDetails(true);
+$('closeDetails').onclick = () => showStartDetails(false);
+addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !$('start').classList.contains('hidden') && !$('startDetails').classList.contains('hidden')) {
+    showStartDetails(false);
+  }
+});
+$('sound').onclick=()=>{initAudio();soundOn=!soundOn;$('sound').textContent='Hang: '+(soundOn?'BE':'KI')};$('home').onclick=()=>{state='start';showStartDetails(false, false);$('end').classList.add('hidden');$('start').classList.remove('hidden')};function keysClear(){Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('[data-key]').forEach(b=>b.classList.remove('down'))}const keymap={ArrowUp:'go',w:'go',ArrowDown:'back',s:'back',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};addEventListener('keydown',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k){e.preventDefault();if(state==='mini'){return}else keys[k]=true}});addEventListener('keyup',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k)keys[k]=false});addEventListener('blur',keysClear);document.querySelectorAll('[data-key]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys[b.dataset.key]=true;b.classList.add('down')};b.onpointerup=b.onpointercancel=()=>{keys[b.dataset.key]=false;b.classList.remove('down')}});
+function valid(x,y){if(x<15||y<15||x>SIZE-15||y>SIZE-15)return false;return !buildings.some(b=>x>b.x-15&&x<b.x+b.w+15&&y>b.y-15&&y<b.y+b.h+15)}
+function finish(reason='time'){mini?.cleanup?.();$('damage').classList.add('hidden');$('endLabel').textContent=reason==='explosion'?'AZ AUTÓ MEGSEMMISÜLT':'MŰSZAK VÉGE';$('endTitle').textContent=reason==='explosion'?'Felrobbant az autód!':'Lejárt az idő!';$('urgent').classList.add('hidden');state='end';mini=null;keysClear();$('mini').classList.add('hidden');$('end').classList.remove('hidden');$('total').textContent='★ '+score;$('summary').textContent=success+' sikeres feladat • '+(reason==='explosion'?'18 ütközés után véget ért a műszak.':'Szép munka a városban!');$('controls').classList.add('hidden')}
+// Task catalogue: each first encounter has an untimed introduction.
+
+const TASKS = {
+  0: ['UTP csatlakozó csere', 'A jobb oldali aljzatok fentről lefelé a bekötési sorrendet mutatják. Húzd a nyolc összekevert kábelt balról az azonos színű jobb oldali aljzatba!', 25, 'UTP csatlakozó', 'Műszak', buildWiring],
+  3: ['Szakadáskereső', 'Húzd végig a mérőműszert a kábelen. A magasabb érték és gyorsabb csipogás a hibához vezet. A Bemérés gombbal jelöld a helyét!', 12, 'Utcai szekrény', 'Műszak', buildFaultFinder],
+  5: ['Alkatrészcsere', 'Húzd a három rozsdás modult a HULLADÉK mezőbe! Ezután az új LAN, KÁBEL és TÁP alkatrészeket illeszd a jelükhöz tartozó foglalatokba.', 15, 'Kapcsolószekrény', 'Műszak', buildParts],
+  6: ['Okos Wi-Fi telepítés', 'Húzd a két routert a lakásban oda, ahol mind a hat eszköz jelet kap! A színes körök mutatják a lefedettséget.', 20, 'Lakóház', 'Műszak', buildWifi],
+  7: ['Jelút helyreállítása', 'Forgasd el koppintással a kábelelemeket! Kösd össze a bal felső zöld bemenetet a jobb alsó kijárattal. A jel csak illeszkedő végeken halad át.', 15, 'Hálózati csomópont', 'Műszak', buildRoute],
+  8: ['Erősítő szintezés', 'A négy csúszkával állítsd be a csatornákat a megadott célértékekre! A zöld jelzés ±3% eltérésen belül jelenik meg.', 15, 'Jelerősítő', 'Műszak', buildLevels],
+  10: ['Kábelezés', 'Fogd meg a magenta kábelvéget, majd húzd végig a világos kábelcsatornában a zöld aljzatig! Falérintéskor újra kell indulnod. Felengedés után a kábel végétől folytathatod.', 15, 'Kábelakna', 'Műszak', buildCableMaze],
+  9: ['Találkozási pont', 'Fogadd a hívást, majd vezess a türkizzel jelölt találkozási pontra! A helyszínen tartsd nyomva a Megérkeztem gombot, hogy jelezd az érkezésed.', 12, 'Bejövő hívás', 'D2D', buildDelivery],
+  11: ['Szórólapozás', 'Dobd el a szórólapot, amikor a mozgó célkereszt a postaláda nyílása előtt jár! Három találat kell.', 20, 'Postaláda', 'D2D', buildFlyers],
+  12: ['Kávé felszolgálása', 'Fogd meg a teli poharat, és lassan húzd végig a tálcán az asztalig! Ha kiömlik, az indulópontról próbálkozhatsz újra.', 20, 'Üzlet', 'Üzlet', buildCoffee],
+  13: ['Szélvihar', 'Tartsd az esernyőt a körön belül 8 másodpercig! Húzd az ujjaddal, vagy ellensúlyozd a széllökéseket a nyilakkal.', 15, 'Utcai állomás', 'D2D', buildUmbrella],
+  14: ['Kopogtatás', 'Jegyezd meg a három zölden felvillanó csengőt! Amikor kialszanak a fények, nyomd meg mindhárom csengőt.', 15, 'Lakóház', 'D2D', buildDoorbells],
+  15: ['Napindító', 'Irányítsd az emberkét a labirintusban a zölddel jelölt üzletig! Használd a nyilakat vagy a képernyőgombokat.', 10, 'Üzletbejárat', 'Üzlet', buildOpeningMaze],
+  16: ['Árcímkecsere', 'Koppints a két régi árcímkére, hogy leszakítsd őket, majd húzd mindkét új címkét a hozzá tartozó telefon alá.', 20, 'Telefonkiállítás', 'Üzlet', buildPriceTags],
+  18: ['Munkaruha', 'Öltöztesd fel Károlyt! Levi\'s farmer, fekete póló, fehér Károly-névkitűző, Converse cipő és magenta kulacs kell. Ha rossz darabot teszel a bábura, vége a minijátéknak.', 25, 'Öltöző', 'Üzlet', buildUniform]
+};
+const TASK_IDS = [0,3,5,6,7,8,10,9,13,11,14,12,15,16,18];
+const PRACTICE_CATEGORIES = ['Műszak', 'D2D', 'Üzlet'];
+spots.forEach(s=>s.baseLocation=s.location);
+const seen=new Set(),usedTasks=new Set();let lastType=-1,practice=false,slowUntil=0,nextUrgent=0,soundOn=true,audio=null,engine=null,engineGain=null,beepAt=0;
+function initAudio(){try{if(!audio){audio=new(window.AudioContext||window.webkitAudioContext)();engine=audio.createOscillator();engineGain=audio.createGain();engine.type='sawtooth';engineGain.gain.value=0;engine.connect(engineGain);engineGain.connect(audio.destination);engine.start()}audio.resume()}catch(e){}}
+function tone(freq=600,duration=.08,volume=.025){if(!audio||!soundOn)return;const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
+let lastCrashAt=-Infinity;
+function crashSound(speed=80){if(!soundOn)return;initAudio();if(!audio)return;const stamp=performance.now();if(stamp-lastCrashAt<250)return;lastCrashAt=stamp;try{const at=audio.currentTime,force=Math.min(1,Math.max(.2,Math.abs(speed)/180)),duration=.22,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.17));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='highpass';filter.frequency.value=450;gain.gain.setValueAtTime(.07+force*.15,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration);const thud=audio.createOscillator(),low=audio.createGain();thud.type='triangle';thud.frequency.setValueAtTime(150,at);thud.frequency.exponentialRampToValueAtTime(42,at+.16);low.gain.setValueAtTime(.04+force*.1,at);low.gain.exponentialRampToValueAtTime(.001,at+.19);thud.connect(low);low.connect(audio.destination);thud.start(at);thud.stop(at+.2)}catch(e){tone(85,.15,.05)}}
+function updateAudio(t){if(engine){engine.frequency.setTargetAtTime(42+Math.abs(car.v)*.48,audio.currentTime,.1);engineGain.gain.setTargetAtTime(soundOn&&state==='drive'?.013:0,audio.currentTime,.06)}if(soundOn&&state==='drive'&&keys.back&&Math.abs(car.v)>40&&t>beepAt){tone(130,.04,.012);beepAt=t+160}}
+// Damage is counted per contact; separating from the obstacle rearms it.
+let collisionCount=0,contactActive=false,contactClearAt=null,explosionAt=0;
+function resetDamage(){collisionCount=0;contactActive=false;contactClearAt=null;explosionAt=0;toastUntil=0;updateDamageHud();$('damage').classList.remove('hidden')}
+function updateDamageHud(){const stage=collisionCount>=18?'exploded':collisionCount>=15?'fire':collisionCount>=10?'smoke':'normal';$('damage').dataset.stage=stage;$('damage').textContent='ÜTKÖZÉS '+collisionCount+' / 18 · '+({normal:'ÉP AUTÓ',smoke:'FÜSTÖL',fire:'LÁNGOL',exploded:'MEGSEMMISÜLT'})[stage]}
+function separatedFromObstacles(){return [[0,0],[4,0],[-4,0],[0,4],[0,-4]].every(([dx,dy])=>valid(car.x+dx,car.y+dy)&&playerClear(car.x+dx,car.y+dy,car.a))}
+function recordContact(hit,speed,t){if(state!=='drive')return;if(hit){contactClearAt=null;if(!contactActive){contactActive=true;if(speed>2){collisionCount=Math.min(18,collisionCount+1);updateDamageHud();if(collisionCount===18)explodeCar(t)}}}else if(contactActive&&separatedFromObstacles()){if(contactClearAt===null)contactClearAt=t;if(t-contactClearAt>=150){contactActive=false;contactClearAt=null}}else contactClearAt=null}
+function explosionSound(){if(!soundOn)return;initAudio();if(!audio)return;try{const at=audio.currentTime,duration=1.1,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.2));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='lowpass';filter.frequency.setValueAtTime(2300,at);filter.frequency.exponentialRampToValueAtTime(120,at+duration);gain.gain.setValueAtTime(.42,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration)}catch(e){tone(55,.8,.12)}}
+function explodeCar(t){if(state!=='drive')return;explosionAt=t;state='exploding';car.v=0;keysClear();$('controls').classList.add('hidden');$('urgent').classList.add('hidden');$('hint').textContent='Az autó felrobbant!';explosionSound()}
+function drawEngineFire(x,y,t){
+ctx.save();ctx.translate(x,y);const pulse=.94+Math.sin(t/145)*.06;
+// Soft reflected light beneath the flame keeps the van visible.
+const glow=ctx.createRadialGradient(0,-5,2,0,-5,44);glow.addColorStop(0,'rgba(255,193,65,.46)');glow.addColorStop(.45,'rgba(255,97,18,.2)');glow.addColorStop(1,'rgba(255,55,8,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.ellipse(0,-5,43*pulse,33*pulse,0,0,Math.PI*2);ctx.fill();
+// Individually phased tongues curl upward with layered hot cores.
+for(const i of [2]){const phase=t/220+i*1.83,wave=Math.sin(phase),sway=Math.sin(phase*.73+1),base=(i-2)*5.7,h=(25+Math.sin(phase+1)*6+(i===2?12:0))*pulse,w=6+Math.sin(phase*.9)*1.4,tip=base+sway*7;
+const flame=ctx.createLinearGradient(base,9,tip,-h);flame.addColorStop(0,'rgba(204,44,8,.92)');flame.addColorStop(.28,'#ff6b12');flame.addColorStop(.66,'#ffb52c');flame.addColorStop(1,'rgba(255,197,66,.12)');ctx.fillStyle=flame;ctx.beginPath();ctx.moveTo(base-w,6);ctx.bezierCurveTo(base-w-6,-h*.24,tip-5-wave*3,-h*.55,tip,-h);ctx.bezierCurveTo(tip-2,-h*.52,base+w+7,-h*.29,base+w,6);ctx.quadraticCurveTo(base,12,base-w,6);ctx.fill();
+const hot=ctx.createLinearGradient(base,8,base,-h*.73);hot.addColorStop(0,'#ffba32');hot.addColorStop(.4,'#ffe777');hot.addColorStop(1,'rgba(255,251,194,.1)');ctx.fillStyle=hot;ctx.beginPath();ctx.moveTo(base-w*.55,5);ctx.bezierCurveTo(base-w*.75,-h*.1,base+sway*2,-h*.35,tip*.55+base*.45,-h*.73);ctx.bezierCurveTo(base+w*.1,-h*.31,base+w*.8,-h*.05,base+w*.5,5);ctx.quadraticCurveTo(base,9,base-w*.55,5);ctx.fill()}
+// Deterministic drifting embers do not affect task randomization.
+ctx.globalCompositeOperation='screen';for(let i=0;i<7;i++){const age=(t/1050+i*.157)%1,px=Math.sin(i*8.7+age*3)*(8+age*12),py=-12-age*57;ctx.globalAlpha=(1-age)*.85;ctx.fillStyle=i%2?'#ffb63e':'#ffe8a1';ctx.beginPath();ctx.ellipse(px,py,1.1-age*.5,2.2-age,Math.sin(i+age),0,Math.PI*2);ctx.fill()}ctx.restore()
+}
+function drawCarDamage(t){if(collisionCount<10||state==='start'||state==='practice')return;const boom=collisionCount>=18,elapsed=(t-explosionAt)/1000;ctx.save();ctx.translate(car.x,car.y);if(boom){ctx.save();ctx.rotate(car.a);ctx.fillStyle='#171a17';ctx.fillRect(-23,-14,46,28);ctx.fillStyle='#3b322a';ctx.fillRect(-16,-10,12,20);ctx.fillRect(8,-9,9,18);ctx.restore()}
+// Small drifting puffs originate from the engine, in world coordinates.
+const ex=Math.cos(car.a)*17,ey=Math.sin(car.a)*17;for(let i=0;i<9;i++){const age=((t/1100+i*.173)%1),r=4+age*15,x=ex+Math.sin(i*2.4+age*2)*age*16,y=ey-age*56;ctx.globalAlpha=(1-age)*.55;ctx.fillStyle=collisionCount>=15?'#2b2829':'#a0aaa5';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}ctx.globalAlpha=1;
+if(collisionCount>=15)drawEngineFire(ex,ey,t);
+if(boom&&elapsed<1.35){const progress=Math.max(0,elapsed/1.35);ctx.globalAlpha=1-progress;ctx.strokeStyle='#ffd873';ctx.lineWidth=6*(1-progress)+1;ctx.beginPath();ctx.arc(0,0,10+progress*95,0,7);ctx.stroke();for(let i=0;i<18;i++){const a=i*2.399,r=progress*(60+(i%5)*16);ctx.fillStyle=i%2?'#ff6524':'#ffd65a';ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r,(1-progress)*(10+i%4*3)+1,0,7);ctx.fill()}ctx.globalAlpha=1}ctx.restore()}
+function reset(){mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+240000;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
+function availableTypes(s,t=performance.now()){return TASK_IDS.filter(i=>!usedTasks.has(i)&&(i!==9||s?.urgentUntil>t))}
+function canOfferTask(s,t=performance.now()){return !s.done&&(!!s.delivery||availableTypes(s,t).length>0)}
+function chooseType(s){const candidates=availableTypes(s);return candidates.length?candidates[rand(candidates.length)]:null}
+function openTask(s,forced){mini?.cleanup?.();initAudio();keysClear();car.v=0;const type=s?.delivery?9:(forced??chooseType(s));if(type===null)return;if(!practice&&!s?.delivery)usedTasks.add(type);mini={type,site:s,done:false,phase:'intro',pauseAt:performance.now(),count:0,selected:null,matched:new Set(),reward:s?.delivery?s.delivery.reward:(s&&s.urgentUntil>performance.now()?10:5)};state='mini';$('controls').classList.add('hidden');$('mini').classList.remove('hidden');$('status').textContent='';$('deviceLabel').textContent=TASKS[type][4].toUpperCase()+' • '+TASKS[type][3];$('title').textContent=TASKS[type][0];$('instruction').textContent=s?.delivery?'Megérkeztél a találkozási pontra. Jelezd az érkezésed!':TASKS[type][1];$('mt').textContent=TASKS[type][2]+' s';if(practice||!seen.has(type)){$('task').innerHTML='<div class="brief">'+(practice?'GYAKORLÁS · NINCS PONTVERSENY':'ELSŐ ALKALOM · AZ ÓRA MOST ÁLL')+'<p>'+TASKS[type][3]+' • '+TASKS[type][2]+' másodperc • '+mini.reward+' csillag</p></div><button class="wide" id="beginTask">Értem, kezdhetjük →</button>';$('beginTask').onclick=beginTask}else beginTask()}
+function beginTask(){if(!mini||mini.phase!=='intro')return;const now=performance.now();if(!practice){const paused=now-mini.pauseAt;deadline+=paused;nextUrgent+=paused;spots.forEach(s=>{if(s.urgentUntil)s.urgentUntil+=paused})}seen.add(mini.type);mini.phase='play';mini.started=now;mini.end=now+TASKS[mini.type][2]*1000;mini.data={};$('task').innerHTML='';TASKS[mini.type][5]();decorateTask();tone(500)}
+function resolve(ok,failure='Nem sikerült időben'){if(!mini||mini.done||mini.phase!=='play')return;if(ok&&performance.now()>=mini.end)ok=false;const transfer=mini.type===9&&mini.site?.delivery;if(transfer){transfer.source.pending=false;transfer.source.fixed=ok;transfer.source.failed=!ok;mini.site.location=mini.site.baseLocation;mini.site.delivery=null}mini.done=true;mini.cleanup?.();$('mini').classList.remove('time-critical');$('mini').classList.add(ok?'task-success':'task-failed');mini.close=performance.now()+1300;if(ok&&!practice){score+=mini.reward;success++;$('score').textContent='★ '+score}if(mini.site){mini.site.done=true;mini.site.fixed=ok;mini.site.failed=!ok;mini.site.urgentUntil=0}if(ok){tone(700,.13);setTimeout(()=>tone(1000,.15),130)}else tone(160,.25);$('status').textContent=ok?(practice?'Sikeres gyakorlás!':(TASKS[mini.type][4]==='Műszak'?'Szolgáltatás helyreállítva!':'Feladat teljesítve!')+' +'+mini.reward+' ★'):failure+' • +0 ★';$('task').querySelectorAll('button,input').forEach(b=>b.disabled=true)}
+
+function practiceMenu() {
+  mini?.cleanup?.();
+  showStartDetails(true, false);
+  $('damage').classList.add('hidden');
+  $('urgent').classList.add('hidden');
+  practice = true;
+  state = 'practice';
+  mini = null;
+  keysClear();
+  $('start').classList.remove('hidden');
+  $('end').classList.add('hidden');
+  $('mini').classList.add('hidden');
+  const list = $('practiceList');
+  list.classList.remove('hidden');
+  list.innerHTML = '<p>Próbáld ki bármelyik feladatot! A műszak órája nem indul el.</p>' +
+    PRACTICE_CATEGORIES.map(category => {
+      const lessons = TASK_IDS.filter(id => TASKS[id][4] === category).map(id => {
+        const [name, , seconds] = TASKS[id];
+        return '<button class="lesson" data-lesson="'+id+'">'+name+' <span>'+seconds+' s →</span></button>';
+      });
+      return '<section class="practice-category"><h3>'+category+'</h3>'+lessons.join('')+'</section>';
+    }).join('');
+  list.querySelectorAll('[data-lesson]').forEach(button => {
+    button.onclick = () => {
+      $('start').classList.add('hidden');
+      openTask(null, Number(button.dataset.lesson));
+    };
+  });
+}
+function buildFaultFinder() {
+  const d = mini.data;
+  d.target = 20 + rand(61);
+  d.value = 50;
+  $('task').innerHTML = '<div class="instrument"><canvas id="diagnostic" width="420" height="124"></canvas><strong id="reading">0%</strong><div class="bar"><i id="level"></i></div></div><label class="sliderlabel">Mérőműszer helyzete<input id="adjust" type="range" min="0" max="100" value="50"></label><p id="feedback" class="feedback">Keresd a legerősebb jelet!</p><button class="wide" id="measure">Bemérés</button>';
+  $('adjust').oninput = event => { d.value = Number(event.target.value); };
+  $('measure').onclick = () => {
+    if (Math.abs(d.value - d.target) <= 6) resolve(true);
+    else {
+      $('status').textContent = 'Távolabb van a szakadás. Mérj tovább!';
+      tone(170);
+    }
+  };
+}
+function buildRoute() {
+  const d = mini.data;
+  const paths = [[0,1,2,5,8],[0,3,6,7,8],[0,1,4,5,8],[0,3,4,7,8]];
+  d.path = paths[rand(paths.length)];
+  d.rots = Array.from({length: 9}, () => rand(4));
+  d.rots[0] = 1;
+  $('task').innerHTML = '<div class="route" id="route">'+d.rots.map((_,i) => '<button data-pipe="'+i+'" aria-label="'+(i+1)+'. kábelelem forgatása"></button>').join('')+'</div><p class="feedback">Zöld bemenet: bal felső · Kijárat: jobb alsó ↓</p>';
+  $('route').querySelectorAll('[data-pipe]').forEach(button => {
+    button.onclick = () => {
+      const i = Number(button.dataset.pipe);
+      d.rots[i] = (d.rots[i] + 1) % 4;
+      drawRoute();
+      if (routeSolved()) resolve(true);
+    };
+  });
+  drawRoute();
+}
+function pipeEnds(i,rot){const path=mini.data.path,k=path.indexOf(i);let ends=[0,1];if(k>=0){const prev=k===0?-1:path[k-1],next=k===path.length-1?11:path[k+1];const dir=j=>j===i-1?3:j===i+1?1:j===i-3?0:2;ends=[dir(prev),dir(next)]}return ends.map(e=>(e+rot)%4)}
+function routeSolved(){const d=mini.data;if(!pipeEnds(0,d.rots[0]).includes(3)||!pipeEnds(8,d.rots[8]).includes(2))return false;for(let n=0;n<d.path.length-1;n++){const i=d.path[n],j=d.path[n+1],dir=j===i+1?1:2;if(!pipeEnds(i,d.rots[i]).includes(dir)||!pipeEnds(j,d.rots[j]).includes((dir+2)%4))return false}return true}
+
+function drawRoute() {
+  const d = mini.data;
+  const edge = ['50 0', '100 50', '50 100', '0 50'];
+  $('route').querySelectorAll('[data-pipe]').forEach(button => {
+    const i = Number(button.dataset.pipe);
+    const [first, second] = pipeEnds(i, d.rots[i]);
+    const corner = (first + 2) % 4 !== second;
+    const line = 'M'+edge[first]+(corner ? ' Q50 50 ' : ' L')+edge[second];
+    const color = d.path.includes(i) ? '#f6c86c' : '#738278';
+    button.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="13"/><path d="'+line+'" fill="none" stroke="#ffffff44" stroke-width="3"/></'+'svg>';
+    button.classList.toggle('endpoint', i === 0 || i === 8);
+  });
+}
+function tickMini(t,dt) {
+  if (!mini || mini.phase !== 'play' || mini.done) return;
+  workbenchTick(t);
+  if (mini.type === 9) tickMeeting(t);
+  if (mini.type === 10) drawCableMaze();
+  if (mini.type === 11) tickFlyers(t);
+  if (mini.type === 13) tickUmbrella(t,dt);
+  if (mini.type === 14) tickDoorbells(t);
+  if (mini.type === 15) tickOpeningMaze(t);
+  if (mini.type !== 3) return;
+  const d = mini.data;
+  const strength = Math.max(0, 100-Math.abs(d.value-d.target)*3);
+  $('reading').textContent = Math.round(strength)+'%';
+  $('level').style.width = strength+'%';
+  if (t > beepAt) {
+    tone(300+strength*7,.04);
+    beepAt = t+650-strength*5;
+  }
+}
+function decorateTask() {
+  const task = $('task');
+  task.dataset.kind = mini.type;
+  task.className = 'workbench';
+  $('mini').classList.remove('task-success', 'task-failed', 'time-critical');
+  $('taskbar').style.width = '100%';
+  const entry = TASKS[mini.type];
+  $('deviceLabel').textContent = entry[4].toUpperCase()+' • '+entry[3];
+}
+function workbenchTick(t) {
+  const remain = mini.end-t;
+  const ratio = Math.max(0,remain/((mini.duration||TASKS[mini.type][2])*1000));
+  $('taskbar').style.width = ratio*100+'%';
+  $('mini').classList.toggle('time-critical', remain < 3000);
+  const sec = Math.ceil(remain/1000);
+  if (sec <= 3 && sec > 0 && mini.lastSecond !== sec) {
+    mini.lastSecond = sec;
+    tone(260,.07,.012);
+  }
+  if (mini.type === 3) drawDiagnostic(t);
+}
+function drawDiagnostic(t){const canvas=$('diagnostic');if(!canvas)return;const c=canvas.getContext('2d'),d=mini.data,strength=Math.max(0,100-Math.abs(d.value-d.target)*3);c.fillStyle='#071617';c.fillRect(0,0,420,124);c.strokeStyle='#244438';c.lineWidth=1;for(let x=0;x<420;x+=20){c.beginPath();c.moveTo(x,0);c.lineTo(x,124);c.stroke()}for(let y=0;y<124;y+=20){c.beginPath();c.moveTo(0,y);c.lineTo(420,y);c.stroke()}c.strokeStyle='#7c8074';c.lineWidth=10;c.beginPath();c.moveTo(20,43);c.lineTo(400,43);c.stroke();const x=20+d.value*3.8;c.strokeStyle='#e20074';c.lineWidth=3;c.beginPath();c.moveTo(x,43);c.lineTo(x,71);c.stroke();c.fillStyle='#c1c7b1';c.fillRect(x-23,70,46,38);c.fillStyle='#14332a';c.fillRect(x-17,76,34,16);c.fillStyle='#8affb6';c.font='10px monospace';c.fillText(Math.round(strength)+'%',x-12,88);c.strokeStyle='#62eeb2';c.lineWidth=2;c.beginPath();for(let x=0;x<420;x+=4){const y=110-Math.sin(x/15+t/130)*(strength/100)*5;x?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}
+const UTP_WIRES = [
+  ['#f88a28', true], ['#f88a28', false],
+  ['#49c873', true], ['#53a7ff', false],
+  ['#53a7ff', true], ['#49c873', false],
+  ['#a47249', true], ['#a47249', false]
+];
+const WIRE_IDS = UTP_WIRES.map((_, i) => i);
+const wireY = row => 34 + row * 44;
+
+function buildWiring() {
+  const d = mini.data;
+  d.left = shuffle([...WIRE_IDS]);
+  if (d.left.every((id, row) => id === row)) [d.left[0], d.left[1]] = [d.left[1], d.left[0]];
+  d.dragWire = null;
+  $('task').innerHTML = '<canvas id="wiring" width="420" height="376" aria-label="Nyolc UTP vezeték. Húzd a bal oldali végeket az azonos színű jobb oldali aljzatokhoz."></canvas><p id="feedback" class="feedback">0 / 8 vezeték csatlakoztatva</p>';
+  const cv = $('wiring');
+  const point = event => canvasPoint(cv, event, 420, 376);
+  cv.onpointerdown = event => {
+    if (mini.done || d.dragWire !== null) return;
+    const p = point(event);
+    const row = d.left.findIndex((id, row) => !mini.matched.has(id) && Math.abs(p.y-wireY(row)) <= 20 && p.x <= 125);
+    const id = d.left[row];
+    if (id === undefined) return;
+    d.dragWire = id;
+    d.pointer = event.pointerId;
+    d.cursor = p;
+    cv.setPointerCapture(event.pointerId);
+    drawWiring();
+  };
+  cv.onpointermove = event => {
+    if (d.dragWire === null || d.pointer !== event.pointerId || mini.done) return;
+    d.cursor = point(event);
+    drawWiring();
+  };
+  cv.onpointerup = event => {
+    if (d.dragWire === null || d.pointer !== event.pointerId || mini.done) return;
+    const p = point(event);
+    const id = d.dragWire;
+    if (Math.abs(p.x-382) <= 38 && Math.abs(p.y-wireY(id)) <= 20) {
+      mini.matched.add(id);
+      $('feedback').textContent = mini.matched.size+' / 8 vezeték csatlakoztatva';
+      tone(650,.07);
+    } else {
+      $('feedback').textContent = 'Keresd az azonos színű aljzatot!';
+      tone(170,.08);
+    }
+    d.dragWire = null;
+    drawWiring();
+    if (mini.matched.size === UTP_WIRES.length) resolve(true);
+  };
+  cv.onpointercancel = () => { d.dragWire = null; drawWiring(); };
+  drawWiring();
+}
+function canvasPoint(cv,event,w,h) {
+  const r = cv.getBoundingClientRect();
+  return {x:(event.clientX-r.left)*w/r.width,y:(event.clientY-r.top)*h/r.height};
+}
+function paintWire(c, id, width) {
+  const [color, striped] = UTP_WIRES[id];
+  c.lineWidth = width+4;
+  c.strokeStyle = '#08110d';
+  c.stroke();
+  c.lineWidth = width;
+  c.strokeStyle = striped ? '#fff8eb' : color;
+  c.stroke();
+  if (striped) {
+    c.strokeStyle = color;
+    c.lineCap = 'butt';
+    c.setLineDash([6,6]);
+    c.stroke();
+    c.setLineDash([]);
+    c.lineCap = 'round';
+  }
+}
+function drawWiring() {
+  const d = mini.data;
+  const c = $('wiring').getContext('2d');
+  c.fillStyle = '#0d211b';
+  c.fillRect(0,0,420,376);
+  c.fillStyle = '#30483d';
+  c.fillRect(10,12,56,352);
+  c.fillRect(354,12,56,352);
+  c.lineCap = 'round';
+  for (const id of WIRE_IDS) {
+    const y = wireY(d.left.indexOf(id));
+    const endY = wireY(id);
+    const linked = mini.matched.has(id);
+    const end = linked ? {x:382,y:endY} : d.dragWire === id ? d.cursor : {x:116,y:y+8};
+    c.beginPath();
+    c.moveTo(38,y);
+    const bend = Math.max(18,(end.x-38)*.42);
+    c.bezierCurveTo(38+bend,y,end.x-bend,end.y,end.x,end.y);
+    paintWire(c,id,8);
+    for (const [x,sy] of [[38,y],[382,endY]]) {
+      c.fillStyle = linked ? '#21563f' : '#112b23';
+      c.fillRect(x-14,sy-13,28,26);
+      c.beginPath();
+      c.moveTo(x-8,sy);
+      c.lineTo(x+8,sy);
+      paintWire(c,id,8);
+    }
+    c.fillStyle = '#a9c0b0';
+    c.font = '11px monospace';
+    c.fillText(String(id+1),399,endY+4);
+  }
+}
+function buildParts(){const d=mini.data;d.old=[true,true,true];d.installed=[false,false,false];d.spares=shuffle([0,1,2]);d.drag=null;d.cursor=null;$('task').innerHTML='<canvas id="partsBench" width="420" height="300" aria-label="Alkatrészcsere: húzd a hibás modulokat a jobb felső hulladékgyűjtőbe, majd az új alkatrészeket a megfelelő foglalatba"></canvas><p id="feedback" class="feedback">1. Húzd a három rozsdás modult a HULLADÉK mezőre!</p>';const cv=$('partsBench'),point=e=>canvasPoint(cv,e,420,300);cv.onpointerdown=e=>{if(mini.done)return;e.preventDefault();const p=point(e),slot=partsSlot(p);if(slot>=0&&d.old[slot])d.drag={kind:'old',id:slot};else if(d.old.every(v=>!v)&&p.y>=205&&p.y<=280){const col=Math.floor((p.x-15)/135);if(col>=0&&col<3&&!d.installed[d.spares[col]])d.drag={kind:'new',id:d.spares[col]}}if(d.drag){d.pointer=e.pointerId;d.cursor=p;cv.setPointerCapture(e.pointerId);drawParts()}};cv.onpointermove=e=>{if(!d.drag||e.pointerId!==d.pointer||mini.done)return;e.preventDefault();d.cursor=point(e);drawParts()};cv.onpointerup=e=>{if(!d.drag||e.pointerId!==d.pointer||mini.done)return;dropPart(point(e))};cv.onpointercancel=()=>{d.drag=null;d.cursor=null;drawParts()};drawParts()}
+function partsSlot(p){if(p.y<65||p.y>155)return -1;for(let i=0;i<3;i++)if(p.x>=15+i*135&&p.x<=125+i*135)return i;return -1}
+function dropPart(p){const d=mini.data,drag=d.drag;if(!drag||mini.done)return;if(drag.kind==='old'&&p.x>=310&&p.x<=415&&p.y>=4&&p.y<=48){d.old[drag.id]=false;tone(320,.06)}else if(drag.kind==='new'&&partsSlot(p)===drag.id&&!d.old[drag.id]){d.installed[drag.id]=true;tone(700,.07)}else{tone(150,.09);$('status').textContent='Nem ide illik. Próbáld a megfelelő foglalatot!'}d.drag=null;d.cursor=null;const ready=d.old.every(v=>!v);$('feedback').textContent=ready?'2. Illeszd az új LAN, KÁBEL és TÁP modulokat a megfelelő foglalatokba!':'1. Húzd a három rozsdás modult a HULLADÉK mezőre!';drawParts();if(d.installed.every(Boolean))resolve(true)}
+function drawPart(c,id,x,y,old=false){c.fillStyle=old?'#795445':['#528c8e','#805f99','#848b4e'][id];c.fillRect(x,y,98,65);c.strokeStyle=old?'#a57751':'#bdd6b8';c.lineWidth=2;c.strokeRect(x+2,y+2,94,61);c.fillStyle='#16302a';c.fillRect(x+12,y+12,72,20);c.fillStyle=old?'#cf9b61':'#a7f1c9';c.font='bold 11px monospace';c.textAlign='center';c.fillText(['LAN ▰','KÁBEL ◆','TÁP ●'][id],x+49,y+26);c.fillStyle='#c8b573';for(let i=0;i<6;i++)c.fillRect(x+19+i*10,y+58,6,10);if(old){c.strokeStyle='#35251e';c.beginPath();c.moveTo(x+30,y+40);c.lineTo(x+40,y+48);c.lineTo(x+62,y+36);c.stroke()}}
+function drawParts(){const d=mini.data,c=$('partsBench').getContext('2d');c.fillStyle='#10291e';c.fillRect(0,0,420,300);c.fillStyle='#634339';c.fillRect(310,4,105,44);c.fillStyle='#ffe5c4';c.font='11px monospace';c.textAlign='center';c.fillText('HULLADÉK',362,30);for(let i=0;i<3;i++){const x=15+i*135;c.fillStyle='#07150f';c.fillRect(x,65,110,90);c.strokeStyle='#5c806b';c.lineWidth=2;c.strokeRect(x,65,110,90);c.fillStyle='#a5c4ad';c.font='11px monospace';c.fillText(['LAN ▰','KÁBEL ◆','TÁP ●'][i],x+55,180);if(d.old[i]&&!(d.drag?.kind==='old'&&d.drag.id===i))drawPart(c,i,x+6,76,true);if(d.installed[i])drawPart(c,i,x+6,76);if(!d.installed[d.spares[i]]&&!(d.drag?.kind==='new'&&d.drag.id===d.spares[i]))drawPart(c,d.spares[i],x+6,213)}if(d.drag&&d.cursor)drawPart(c,d.drag.id,d.cursor.x-49,d.cursor.y-30,d.drag.kind==='old')}
+function buildLevels(){const d=mini.data;d.targets=Array.from({length:4},()=>25+rand(51));d.values=[0,0,0,0];$('task').innerHTML='<div class="signal-channels">'+d.targets.map((v,i)=>'<label class="signal-channel"><strong>CH '+(i+1)+'</strong><span class="level-target">Cél: '+v+'%</span><div class="channel-track"><i id="channelFill'+i+'"></i><b style="bottom:'+v+'%"></b></div><input data-channel="'+i+'" type="range" min="0" max="100" value="0" aria-label="'+(i+1)+'. csatorna jelszintje"><output id="channelValue'+i+'">0%</output></label>').join('')+'</div><p id="feedback" class="feedback">Állítsd mind a négy jelszintet a megjelölt értékhez!</p>';$('task').querySelectorAll('[data-channel]').forEach(input=>input.oninput=e=>setChannel(+input.dataset.channel,+e.target.value));refreshLevels()}
+function setChannel(i,value){if(mini.done)return;const d=mini.data;d.values[i]=Math.max(0,Math.min(100,value));refreshLevels();if(d.values.every((v,j)=>Math.abs(v-d.targets[j])<=3))resolve(true)}
+function refreshLevels(){const d=mini.data;let good=0;for(let i=0;i<4;i++){const ok=Math.abs(d.values[i]-d.targets[i])<=3;good+=ok?1:0;$('channelFill'+i).style.height=d.values[i]+'%';$('channelFill'+i).style.background=ok?'#84ffc0':'#e20074';$('channelValue'+i).textContent=Math.round(d.values[i])+'%'+(ok?' ✓':'')}$('feedback').textContent=good+' / 4 csatorna kalibrálva • ±3% eltérés megengedett'}
+const WIFI_DEVICES = [
+  [38,57,'TV'], [160,78,'Laptop'], [46,194,'Mobil'],
+  [268,65,'Tablet'], [381,80,'TV'], [375,197,'Mobil']
+];
+const WIFI_RADIUS = 115;
+const WIFI_COLORS = ['#b50964','#116e8c'];
+
+function buildWifi() {
+  const d = mini.data;
+  d.routers = [{x:42,y:118},{x:376,y:130}];
+  d.activeRouter = 0;
+  d.drag = null;
+  $('task').innerHTML = '<div class="router-options"><button id="routerA" aria-pressed="true">1. router</button><button id="routerB" aria-pressed="false">2. router</button></div><canvas id="floorplan" width="420" height="250" tabindex="0" aria-label="Lakás alaprajza. Húzd a két routert, vagy mozgasd a kiválasztott routert a nyilakkal."></canvas><p id="feedback" class="feedback"></p><button id="wifiCheck" class="wide">Lefedettség ellenőrzése</button>';
+  const cv = $('floorplan');
+  function select(index) {
+    d.activeRouter = index;
+    $('routerA').setAttribute('aria-pressed', String(index === 0));
+    $('routerB').setAttribute('aria-pressed', String(index === 1));
+  }
+  function move(index,x,y) {
+    x = Math.max(18,Math.min(402,x));
+    y = Math.max(18,Math.min(232,y));
+    if (x > 195 && x < 225) x = x < 210 ? 195 : 225;
+    d.routers[index] = {x,y};
+    $('status').textContent = '';
+    drawWifi();
+  }
+  [$('routerA'),$('routerB')].forEach((button,i)=>{
+    button.onclick = () => { select(i); drawWifi(); cv.focus({preventScroll:true}); };
+  });
+  cv.onpointerdown = event => {
+    if (mini.done || d.drag || event.button !== 0) return;
+    const p = canvasPoint(cv,event,420,250);
+    const active = d.activeRouter;
+    const index = [active,1-active].find(i => Math.hypot(p.x-d.routers[i].x,p.y-d.routers[i].y) <= 24);
+    if (index !== undefined) {
+      select(index);
+      const router = d.routers[index];
+      d.drag = {index,id:event.pointerId,dx:router.x-p.x,dy:router.y-p.y};
+    } else {
+      d.drag = {index:active,id:event.pointerId,dx:0,dy:0};
+      move(active,p.x,p.y);
+    }
+    cv.setPointerCapture(event.pointerId);
+    drawWifi();
+  };
+  cv.onpointermove = event => {
+    if (mini.done || d.drag?.id !== event.pointerId) return;
+    const p = canvasPoint(cv,event,420,250);
+    move(d.drag.index,p.x+d.drag.dx,p.y+d.drag.dy);
+  };
+  cv.onpointerup = cv.onpointercancel = cv.onlostpointercapture = event => {
+    if (d.drag?.id === event.pointerId) d.drag = null;
+  };
+  cv.onkeydown = event => {
+    if (mini.done || !event.key.startsWith('Arrow')) return;
+    const [dx,dy] = MINI_DIRECTIONS[event.key];
+    const router = d.routers[d.activeRouter];
+    const x = dx > 0 && router.x === 195 ? 225 : dx < 0 && router.x === 225 ? 195 : router.x+dx*12;
+    move(d.activeRouter,x,router.y+dy*12);
+  };
+  $('wifiCheck').onclick = () => {
+    if (wifiCoverage(d.routers).every(Boolean)) resolve(true);
+    else $('status').textContent = 'Mozgasd a routereket, hogy mind a hat eszköz jelet kapjon!';
+  };
+  drawWifi();
+}
+function wifiCoverage(routers) {
+  return WIFI_DEVICES.map(([x,y]) => routers.some(router =>
+    (router.x < 210) === (x < 210) && Math.hypot(x-router.x,y-router.y) <= WIFI_RADIUS
+  ));
+}
+function drawWifi() {
+  const d = mini.data;
+  const c = $('floorplan').getContext('2d');
+  const covered = wifiCoverage(d.routers);
+  c.fillStyle = '#e6d6bd';
+  c.fillRect(0,0,420,250);
+  c.fillStyle = '#d9c4a6';
+  c.fillRect(210,0,210,250);
+  c.strokeStyle = '#aa907040';
+  c.lineWidth = 1;
+  for (let y=20;y<250;y+=18) {
+    c.beginPath(); c.moveTo(0,y); c.lineTo(420,y); c.stroke();
+  }
+  c.fillStyle = '#8f9b89';
+  c.fillRect(69,198,102,28);
+  c.fillRect(69,186,21,40);
+  c.fillStyle = '#a6896e';
+  c.fillRect(249,162,66,44);
+  c.fillRect(320,32,72,24);
+  d.routers.forEach(({x,y},i)=>{
+    c.save();
+    c.beginPath();
+    c.rect(x<210?3:214,3,203,244);
+    c.clip();
+    c.fillStyle = WIFI_COLORS[i]+'24';
+    c.strokeStyle = WIFI_COLORS[i]+'70';
+    c.beginPath();
+    c.arc(x,y,WIFI_RADIUS,0,Math.PI*2);
+    c.fill();
+    c.stroke();
+    c.restore();
+  });
+  c.fillStyle = '#46564f';
+  c.fillRect(206,0,8,250);
+  c.lineWidth = 5;
+  c.strokeStyle = '#46564f';
+  c.strokeRect(2,2,416,246);
+  c.font = 'bold 11px monospace';
+  c.textAlign = 'center';
+  c.fillStyle = '#514c42';
+  c.fillText('NAPPALI',104,22);
+  c.fillText('DOLGOZÓ',315,22);
+  WIFI_DEVICES.forEach(([x,y,label],i) => {
+    c.fillStyle = covered[i] ? '#246d4a' : '#993d3d';
+    c.fillRect(x-24,y-11,48,22);
+    c.fillStyle = '#fff';
+    c.fillText((covered[i]?'✓ ':'')+label,x,y+4);
+  });
+  d.routers.forEach(({x,y},i)=>{
+    c.fillStyle = WIFI_COLORS[i];
+    c.strokeStyle = d.activeRouter===i ? '#fff' : '#26393a';
+    c.lineWidth = 2;
+    c.fillRect(x-16,y-10,32,20);
+    c.strokeRect(x-16,y-10,32,20);
+    c.fillStyle = '#fff';
+    c.fillText(String(i+1),x,y+4);
+  });
+  $('feedback').textContent = covered.filter(Boolean).length+' / '+WIFI_DEVICES.length+' eszköz kap jelet';
+}
+
+function buildDelivery() {
+  if (mini.site?.delivery) {
+    showMeetingArrival(mini.site.delivery.visitor);
+    return;
+  }
+  const visitor = ['Anna','Bence','Nóra','Dávid'][rand(4)];
+  mini.data.ringing = true;
+  $('task').innerHTML = '<div class="delivery-card incoming-call"><div class="phone" aria-hidden="true">📳</div><p>Bejövő hívás · '+visitor+'</p><button id="pickupPhone" class="wide">Hívás fogadása</button></div>';
+  $('pickupPhone').onclick = () => pickupPhone(visitor);
+}
+function pickupPhone(visitor) {
+  if (mini.done || !mini.data.ringing) return;
+  if (performance.now() >= mini.end) { resolve(false); return; }
+  mini.data.ringing = false;
+  if (practice) {
+    showMeetingArrival(visitor);
+    return;
+  }
+  const source = mini.site;
+  const choices = spots.filter(s => s !== source && !s.delivery && !s.pending);
+  const unvisited = choices.filter(s => !s.done);
+  const candidates = unvisited.length ? unvisited : choices;
+  const target = candidates.sort((a,b) => Math.hypot(a.x-source.x,a.y-source.y)-Math.hypot(b.x-source.x,b.y-source.y))[0];
+  if (!target) { resolve(false); return; }
+  source.done = true;
+  source.pending = true;
+  source.urgentUntil = 0;
+  target.done = false;
+  target.delivery = {source,reward:mini.reward,visitor};
+  target.location = 'Találkozási pont';
+  target.urgentUntil = 0;
+  mini.done = true;
+  mini.close = performance.now()+4200;
+  $('task').innerHTML = '<div class="delivery-card"><p><strong>'+visitor+'</strong></p><p>„Szia! A találkozási ponton várlak. Szólj, ha megérkeztél!”</p><button id="leaveMeeting" class="wide">Indulok a találkozóra ◆</button></div>';
+  $('leaveMeeting').onclick = () => { mini.close = performance.now(); };
+  $('status').textContent = 'Keresd a türkiz ◆ jelölőt a térképen.';
+  tone(600,.15);
+}
+function showMeetingArrival(visitor) {
+  mini.duration = 12;
+  mini.started = performance.now();
+  mini.end = mini.started+12000;
+  mini.lastSecond = null;
+  mini.data.meeting = {visitor,heldSince:null};
+  $('mt').textContent = '12 s';
+  $('taskbar').style.width = '100%';
+  $('title').textContent = 'Találkozási pont';
+  $('instruction').textContent = 'Tartsd nyomva a gombot, amíg elküldöd az érkezési jelzést!';
+  $('task').innerHTML = '<div class="delivery-card meeting-arrival"><p><strong>'+visitor+'</strong> a találkozási ponton vár.</p><button id="confirmArrival" class="wide" aria-describedby="arrivalStatus">Megérkeztem · tartsd nyomva</button><progress id="arrivalProgress" max="1" value="0" aria-label="Érkezési jelzés küldése"></progress><p id="arrivalStatus">Az érkezésed még nincs jelezve.</p></div>';
+  const button = $('confirmArrival');
+  const meeting = mini.data.meeting;
+  function startHold() {
+    if (!mini.done && meeting.heldSince === null) {
+      meeting.heldSince = performance.now();
+      $('arrivalStatus').textContent = 'Érkezési jelzés küldése…';
+    }
+  }
+  function releaseHold() {
+    if (meeting.heldSince === null || mini.done) return;
+    meeting.heldSince = null;
+    $('arrivalProgress').value = 0;
+    $('arrivalStatus').textContent = 'Tartsd nyomva a gombot a jelzéshez.';
+  }
+  button.onpointerdown = event => {
+    if (event.button !== 0 || meeting.heldSince !== null) return;
+    button.setPointerCapture(event.pointerId);
+    startHold();
+  };
+  button.onpointerup = button.onpointercancel = button.onlostpointercapture = button.onblur = releaseHold;
+  button.onkeydown = event => {
+    if (event.key !== ' ' && event.key !== 'Enter') return;
+    event.preventDefault();
+    if (!event.repeat) startHold();
+  };
+  button.onkeyup = event => {
+    if (event.key === ' ' || event.key === 'Enter') releaseHold();
+  };
+}
+function tickMeeting(t) {
+  const d = mini.data;
+  if (d.ringing) {
+    const age = Math.max(0,t-mini.started);
+    const pulse = Math.floor(age/1900)*2+Number(age%1900>=230);
+    if (pulse !== d.lastRing) {
+      d.lastRing = pulse;
+      tone(pulse%2?640:520,.16,.04);
+    }
+    return;
+  }
+  const meeting = d.meeting;
+  if (!meeting || meeting.heldSince === null || t >= mini.end) return;
+  const progress = Math.max(0,Math.min(1,(t-meeting.heldSince)/1350));
+  $('arrivalProgress').value = progress;
+  if (progress === 1) {
+    $('arrivalStatus').textContent = meeting.visitor+': „Szia! Látlak, itt vagyok.”';
+    resolve(true);
+  }
+}
+
+function buildFlyers() {
+  const d = mini.data;
+  d.mailbox = 96 + rand(229);
+  d.hits = 0;
+  d.throw = null;
+  $('task').innerHTML = '<canvas id="flyerRange" width="420" height="220" aria-label="Postaláda és mozgó célkereszt"></canvas><p id="feedback" class="feedback">0 / 3 szórólap a postaládában</p><button id="throwFlyer" class="wide">Szórólap dobása</button>';
+  $('throwFlyer').onclick = () => {
+    if (mini.done || d.throw) return;
+    const t = performance.now();
+    if (t >= mini.end) { resolve(false); return; }
+    const x = d.aim;
+    d.throw = {x, start:t, hit:Math.abs(x-d.mailbox) <= 23};
+    $('throwFlyer').disabled = true;
+  };
+  tickFlyers(mini.started);
+}
+function tickFlyers(t) {
+  const d = mini.data;
+  d.aim = 210+150*Math.sin((t-mini.started)/345);
+  const shot = d.throw;
+  const progress = shot ? Math.max(0,Math.min(1,(t-shot.start)/320)) : 0;
+  const c = $('flyerRange').getContext('2d');
+  c.fillStyle = '#202c3a';
+  c.fillRect(0,0,420,220);
+  c.fillStyle = '#344338';
+  c.fillRect(0,110,420,110);
+  c.fillStyle = '#576977';
+  c.fillRect(d.mailbox-5,99,10,70);
+  c.fillStyle = '#a72654';
+  c.fillRect(d.mailbox-42,41,84,65);
+  c.fillStyle = '#e85280';
+  c.fillRect(d.mailbox-46,37,92,12);
+  c.fillStyle = '#1a141a';
+  c.fillRect(d.mailbox-28,63,56,12);
+  c.strokeStyle = '#ffe28e';
+  c.lineWidth = 2;
+  c.beginPath();
+  c.arc(d.aim,69,10,0,Math.PI*2);
+  c.moveTo(d.aim-15,69);
+  c.lineTo(d.aim+15,69);
+  c.moveTo(d.aim,54);
+  c.lineTo(d.aim,84);
+  c.stroke();
+  if (!shot) return;
+  const y = 188 - 119*progress;
+  c.fillStyle = '#fff2c6';
+  c.fillRect(shot.x-10,y-5,20,10);
+  if (progress < 1) return;
+  d.throw = null;
+  if (shot.hit) d.hits++;
+  $('feedback').textContent = d.hits+' / 3 szórólap a postaládában'+(shot.hit?'':' · Mellément!');
+  tone(shot.hit ? 630 : 160,.08);
+  if (d.hits >= 3) resolve(true);
+  else $('throwFlyer').disabled = false;
+}
+
+const COFFEE_PATH = [[38,202],[148,202],[148,65],[278,65],[278,172],[380,172]];
+const COFFEE_RADIUS = 22;
+function buildCoffee() {
+  const d = mini.data;
+  $('task').innerHTML = '<canvas id="coffeeTray" width="420" height="250" aria-label="Tálca, teli kávéspohár és az asztalig vezető út"></canvas><p id="feedback" class="feedback">Fogd meg a poharat, és lassan kövesd a tálcát!</p>';
+  const cv = $('coffeeTray');
+  const point = event => canvasPoint(cv,event,420,250);
+  resetCoffee();
+  cv.onpointerdown = event => {
+    if (mini.done || d.pointer !== null) return;
+    const p = point(event);
+    if (Math.hypot(p.x-d.cup.x,p.y-d.cup.y) > 22) return;
+    d.pointer = event.pointerId;
+    d.offset = {x:d.cup.x-p.x,y:d.cup.y-p.y};
+    d.lastMove = performance.now();
+    cv.setPointerCapture(event.pointerId);
+  };
+  cv.onpointermove = event => {
+    if (mini.done || event.pointerId !== d.pointer) return;
+    const p = point(event);
+    moveCoffee({x:p.x+d.offset.x,y:p.y+d.offset.y},performance.now());
+  };
+  cv.onpointerup = event => { if (event.pointerId === d.pointer) d.pointer = null; };
+  cv.onpointercancel = cv.onpointerup;
+}
+function resetCoffee(spilled = false) {
+  const d = mini.data;
+  d.cup = {x:COFFEE_PATH[0][0],y:COFFEE_PATH[0][1]};
+  d.next = 1;
+  d.pointer = null;
+  d.tilt = 0;
+  d.slosh = 0;
+  if (spilled) {
+    $('feedback').textContent = 'Kilöttyent a kávé. Vedd fel újra a poharat, és haladj lassabban a tálcán!';
+    tone(150,.12);
+  }
+  drawCoffee();
+}
+function distanceToSegment(p,[ax,ay],[bx,by]) {
+  const dx = bx-ax, dy = by-ay;
+  const fraction = Math.max(0,Math.min(1,((p.x-ax)*dx+(p.y-ay)*dy)/(dx*dx+dy*dy)));
+  return Math.hypot(p.x-ax-fraction*dx,p.y-ay-fraction*dy);
+}
+function moveCoffee(p,now) {
+  const d = mini.data;
+  const distance = Math.hypot(p.x-d.cup.x,p.y-d.cup.y);
+  const seconds = Math.min(.08,Math.max(.008,(now-d.lastMove)/1000));
+  const speed = distance/seconds;
+  d.slosh = Math.max(0,d.slosh+(Math.max(0,speed-250)-105)*seconds);
+  if (distance > 18+seconds*165 || d.slosh > 30) {
+    resetCoffee(true);
+    return;
+  }
+  const steps = Math.max(1,Math.ceil(distance/4));
+  for (let i=1; i<=steps; i++) {
+    const sample = {x:d.cup.x+(p.x-d.cup.x)*i/steps,y:d.cup.y+(p.y-d.cup.y)*i/steps};
+    if (distanceToSegment(sample,COFFEE_PATH[d.next-1],COFFEE_PATH[d.next]) > COFFEE_RADIUS) {
+      resetCoffee(true);
+      return;
+    }
+    const [x,y] = COFFEE_PATH[d.next];
+    if (Math.hypot(sample.x-x,sample.y-y) <= 12) {
+      if (d.next === COFFEE_PATH.length-1) {
+        d.cup = {x,y};
+        d.tilt = 0;
+        drawCoffee();
+        resolve(true);
+        return;
+      }
+      d.next++;
+    }
+  }
+  d.tilt = Math.max(-5,Math.min(5,(p.x-d.cup.x)*.65));
+  d.cup = p;
+  d.lastMove = now;
+  $('feedback').textContent = d.slosh > 14 ? 'Lassíts, kilöttyenhet a kávé!' : 'Haladj óvatosan az asztalig!';
+  drawCoffee();
+}
+function drawCoffee() {
+  const d = mini.data;
+  const c = $('coffeeTray').getContext('2d');
+  c.fillStyle = '#242932';
+  c.fillRect(0,0,420,250);
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  c.beginPath();
+  COFFEE_PATH.forEach(([x,y],i) => i ? c.lineTo(x,y) : c.moveTo(x,y));
+  c.strokeStyle = '#99a9ae';
+  c.lineWidth = 56;
+  c.stroke();
+  c.strokeStyle = '#52666d';
+  c.lineWidth = 48;
+  c.stroke();
+  c.fillStyle = '#866145';
+  c.fillRect(346,141,66,62);
+  c.strokeStyle = '#c79966';
+  c.lineWidth = 2;
+  c.strokeRect(349,144,60,56);
+  c.fillStyle = '#fff2d7';
+  c.textAlign = 'center';
+  c.font = 'bold 12px monospace';
+  c.fillText('ASZTAL',379,135);
+  const {x,y} = d.cup;
+  c.beginPath();
+  c.arc(x+3,y+4,17,0,Math.PI*2);
+  c.fillStyle = '#17141088';
+  c.fill();
+  c.beginPath();
+  c.arc(x,y,14,0,Math.PI*2);
+  c.fillStyle = '#efe0ca';
+  c.fill();
+  c.beginPath();
+  c.arc(x+d.tilt*.3,y,10,0,Math.PI*2);
+  c.fillStyle = '#573422';
+  c.fill();
+  c.beginPath();
+  c.arc(x+d.tilt*.3-2,y-2,5,.3,3.6);
+  c.strokeStyle = '#d49965';
+  c.lineWidth = 2;
+  c.stroke();
+}
+// Drag with a pointer, or select an item and then activate its destination.
+function bindMiniDrag(place) {
+  const panel = $('task');
+  const game = mini;
+  let selected = null;
+  let pointer = null;
+  let ghost = null;
+  let suppressClick = false;
+
+  function select(item) {
+    selected?.classList.remove('selected-item');
+    selected = item;
+    selected?.classList.add('selected-item');
+  }
+  function drop(item, target) {
+    if (mini !== game || game.done || !target || target.disabled || item.disabled) return;
+    select(null);
+    place(item.dataset.item, target.dataset.drop, item, target);
+  }
+  panel.onclick = event => {
+    if (mini !== game || game.done || suppressClick) return;
+    const item = event.target.closest('[data-item]');
+    const target = event.target.closest('[data-drop]');
+    if (item && !item.disabled) select(selected === item ? null : item);
+    else if (selected && target) drop(selected,target);
+  };
+  panel.onpointerdown = event => {
+    const item = event.target.closest('[data-item]');
+    if (mini !== game || game.done || pointer || !item || item.disabled || event.button !== 0) return;
+    pointer = {item,id:event.pointerId,x:event.clientX,y:event.clientY};
+    panel.setPointerCapture(event.pointerId);
+  };
+  panel.onpointermove = event => {
+    if (!pointer || event.pointerId !== pointer.id) return;
+    if (!ghost && Math.hypot(event.clientX-pointer.x,event.clientY-pointer.y) > 7) {
+      ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      ghost.textContent = pointer.item.textContent;
+      document.body.append(ghost);
+    }
+    if (ghost) {
+      ghost.style.left = event.clientX+'px';
+      ghost.style.top = event.clientY+'px';
+    }
+  };
+  panel.onpointerup = event => {
+    if (!pointer || event.pointerId !== pointer.id) return;
+    const item = pointer.item;
+    pointer = null;
+    if (!ghost) {
+      if (!game.done) select(selected === item ? null : item);
+    } else {
+      ghost.remove();
+      ghost = null;
+      const target = document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-drop]');
+      if (target && panel.contains(target)) drop(item,target);
+    }
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; },0);
+  };
+  panel.onpointercancel = () => {
+    pointer = null;
+    ghost?.remove();
+    ghost = null;
+  };
+  game.cleanup = () => {
+    panel.onpointercancel?.();
+    game.cleanup = null;
+    panel.onclick = panel.onpointerdown = panel.onpointermove = panel.onpointerup = panel.onpointercancel = null;
+  };
+}
+
+const MINI_DIRECTIONS = {
+  ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0],
+  w:[0,-1], s:[0,1], a:[-1,0], d:[1,0]
+};
+addEventListener('keydown', event => {
+  if (state !== 'mini' || mini?.phase !== 'play' || mini.done || ![13,15].includes(mini.type)) return;
+  const direction = MINI_DIRECTIONS[event.key] ?? MINI_DIRECTIONS[event.key.toLowerCase()];
+  if (!direction) return;
+  event.preventDefault();
+  if (event.repeat) return;
+  mini.data.key = event.key;
+  setMiniDirection(direction);
+});
+addEventListener('keyup', event => {
+  if (mini?.data?.key === event.key) setMiniDirection(null);
+});
+addEventListener('blur', () => {
+  if ([13,15].includes(mini?.type) && mini.data) {
+    setMiniDirection(null);
+    mini.data.pointer = null;
+    mini.data.aim = null;
+  }
+});
+function setMiniDirection(direction) {
+  mini.data.direction = direction;
+  if (mini.type === 15 && direction && !mini.done) {
+    walkOpeningMaze(direction);
+    mini.data.nextStep = performance.now()+125;
+  }
+}
+function miniArrows() {
+  return '<div class="mini-arrows">'+[
+    ['ArrowLeft','←','Balra'],['ArrowUp','↑','Fel'],['ArrowDown','↓','Le'],['ArrowRight','→','Jobbra']
+  ].map(([key,symbol,label])=>'<button data-direction="'+key+'" aria-label="'+label+'">'+symbol+'</button>').join('')+'</div>';
+}
+function bindMiniArrows() {
+  $('task').querySelectorAll('[data-direction]').forEach(button => {
+    const direction = MINI_DIRECTIONS[button.dataset.direction];
+    button.onpointerdown = event => {
+      event.preventDefault();
+      button.setPointerCapture(event.pointerId);
+      setMiniDirection(direction);
+    };
+    button.onpointerup = button.onpointercancel = () => setMiniDirection(null);
+    button.onclick = event => {
+      if (event.detail === 0 && mini.type === 15 && !mini.done) walkOpeningMaze(direction);
+    };
+  });
+}
+
+const WIND_RING = {x:210,y:125,radius:96};
+function buildUmbrella() {
+  Object.assign(mini.data,{x:210,y:125,vx:0,vy:0,seed:Math.random()*7,pointer:null,aim:null,direction:null});
+  $('task').innerHTML = '<canvas id="windField" class="challenge-canvas" width="420" height="250" aria-label="Tartsd az esernyőt a jelölt körben"></canvas>'+miniArrows()+'<p id="windProgress" class="feedback">0,0 / 8 mp a körben</p>';
+  const cv = $('windField');
+  cv.onpointerdown = event => {
+    const d = mini.data;
+    if (mini.done || d.pointer !== null) return;
+    const point = canvasPoint(cv,event,420,250);
+    if (Math.hypot(point.x-d.x,point.y-d.y) > 36) return;
+    d.pointer = event.pointerId;
+    d.aim = point;
+    cv.setPointerCapture(event.pointerId);
+  };
+  cv.onpointermove = event => {
+    if (mini.data.pointer === event.pointerId) mini.data.aim = canvasPoint(cv,event,420,250);
+  };
+  cv.onpointerup = cv.onpointercancel = event => {
+    if (mini.data.pointer !== event.pointerId) return;
+    mini.data.pointer = null;
+    mini.data.aim = null;
+  };
+  bindMiniArrows();
+  drawUmbrella(0,1,0);
+}
+function tickUmbrella(t,dt) {
+  const d = mini.data;
+  const age = Math.max(0,(t-mini.started)/1000);
+  const gust = Math.sin(age*2.3+d.seed)+Math.sin(age*5.4)*.25;
+  const angle = age*1.8+Math.sin(age*2.1)*1.2+d.seed;
+  const wx = Math.cos(angle)*(150+75*gust);
+  const wy = Math.sin(angle)*(150+75*gust);
+  const [ax,ay] = d.direction ?? [0,0];
+  const pullX = d.aim ? Math.max(-500,Math.min(500,(d.aim.x-d.x)*24)) : 390*ax;
+  const pullY = d.aim ? Math.max(-500,Math.min(500,(d.aim.y-d.y)*24)) : 390*ay;
+  d.vx = (d.vx+(wx+pullX)*dt)*Math.exp(-2.3*dt);
+  d.vy = (d.vy+(wy+pullY)*dt)*Math.exp(-2.3*dt);
+  d.x += d.vx*dt;
+  d.y += d.vy*dt;
+  drawUmbrella(age,wx,wy);
+  const progress = Math.min(8,age).toFixed(1).replace('.',',');
+  $('windProgress').textContent = progress+' / 8 mp a körben';
+  if (Math.hypot(d.x-WIND_RING.x,d.y-WIND_RING.y) > WIND_RING.radius-20) {
+    resolve(false,'A szél kifújta az esernyőt a körből');
+  } else if (age >= 8) resolve(true);
+}
+function drawUmbrella(age,wx,wy) {
+  const c = $('windField').getContext('2d');
+  const {x,y} = mini.data;
+  c.fillStyle = '#1d3046';
+  c.fillRect(0,0,420,250);
+  c.lineWidth = 2;
+  c.strokeStyle = '#9ed8ec80';
+  for (let i=0;i<25;i++) {
+    const lx = ((i*87+age*wx*.6)%420+420)%420;
+    const ly = ((i*53+age*wy*.6)%250+250)%250;
+    c.beginPath();
+    c.moveTo(lx,ly);
+    c.lineTo(lx+wx*.13,ly+wy*.13);
+    c.stroke();
+  }
+  c.beginPath();
+  c.arc(WIND_RING.x,WIND_RING.y,WIND_RING.radius,0,Math.PI*2);
+  c.fillStyle = '#112439bb';
+  c.fill();
+  c.strokeStyle = '#7df4d7';
+  c.lineWidth = 3;
+  c.stroke();
+  c.save();
+  c.translate(x,y);
+  c.rotate(Math.max(-.35,Math.min(.35,mini.data.vx/160)));
+  c.fillStyle = '#f13996';
+  c.beginPath();
+  c.arc(0,0,21,Math.PI,0);
+  c.closePath();
+  c.fill();
+  c.strokeStyle = '#ffd3e8';
+  c.lineWidth = 2;
+  c.beginPath();
+  c.moveTo(-11,0);
+  c.quadraticCurveTo(-10,-15,0,-21);
+  c.quadraticCurveTo(10,-15,11,0);
+  c.moveTo(0,0);
+  c.lineTo(0,14);
+  c.quadraticCurveTo(0,21,7,15);
+  c.stroke();
+  c.restore();
+}
+
+function buildDoorbells() {
+  const d = mini.data;
+  d.green = new Set(shuffle([0,1,2,3,4]).slice(0,3));
+  d.chosen = new Set();
+  d.reveal = true;
+  $('task').innerHTML = '<div class="door-wall">'+Array.from({length:5},(_,i) =>
+    '<div class="door"><span class="door-number">'+(i+1)+'</span><button class="doorbell" data-bell="'+i+'" aria-label="'+(i+1)+'. csengő"></button></div>'
+  ).join('')+'</div><p id="bellMessage" class="feedback">Jegyezd meg a három zöld csengőt!</p>';
+  $('task').querySelectorAll('[data-bell]').forEach(button => {
+    const i = Number(button.dataset.bell);
+    button.dataset.light = d.green.has(i) ? 'green' : 'red';
+    button.textContent = d.green.has(i) ? '✓' : '×';
+    button.setAttribute('aria-label',(i+1)+'. csengő, '+(d.green.has(i)?'zöld':'piros'));
+    button.onclick = () => {
+      if (mini.done || d.reveal || d.chosen.has(i)) return;
+      if (!d.green.has(i)) {
+        button.dataset.light = 'red';
+        resolve(false,'Ez a csengő pirosan villant fel');
+        return;
+      }
+      d.chosen.add(i);
+      button.dataset.light = 'green';
+      button.textContent = '✓';
+      $('bellMessage').textContent = d.chosen.size+' / 3 helyes csengő';
+      if (d.chosen.size === 3) resolve(true);
+    };
+  });
+}
+function tickDoorbells(t) {
+  const d = mini.data;
+  if (!d.reveal || t-mini.started < 2400) return;
+  d.reveal = false;
+  $('task').querySelectorAll('[data-bell]').forEach(button => {
+    button.dataset.light = '';
+    button.textContent = '';
+    button.setAttribute('aria-label',(Number(button.dataset.bell)+1)+'. csengő');
+  });
+  $('bellMessage').textContent = 'Nyomd meg azt a hármat, amelyik zöld volt!';
+}
+
+function buildOpeningMaze() {
+  const d = mini.data;
+  Object.assign(d,createCableMaze(),{x:1,y:1,direction:null,nextStep:0});
+  $('task').innerHTML = '<canvas id="openingMaze" class="challenge-canvas" width="420" height="280" aria-label="Labirintus. Az üzlet a jobb alsó sarokban van."></canvas>'+miniArrows();
+  bindMiniArrows();
+  drawOpeningMaze();
+}
+function tickOpeningMaze(t) {
+  const d = mini.data;
+  if (d.direction && t >= d.nextStep) {
+    walkOpeningMaze(d.direction);
+    d.nextStep = t+125;
+  }
+}
+function walkOpeningMaze([dx,dy]) {
+  const d = mini.data;
+  const x = d.x+dx, y = d.y+dy;
+  if (d.grid[y]?.[x] !== 0) return;
+  d.x = x;
+  d.y = y;
+  drawOpeningMaze();
+  if (x === d.cols-2 && y === d.rows-2) resolve(true);
+}
+function drawOpeningMaze() {
+  const d = mini.data;
+  const c = $('openingMaze').getContext('2d');
+  for (let y=0;y<d.rows;y++) for (let x=0;x<d.cols;x++) {
+    c.fillStyle = d.grid[y][x] ? '#293944' : '#e3d6bc';
+    c.fillRect(x*d.cw,y*d.ch,d.cw+.5,d.ch+.5);
+  }
+  c.fillStyle = '#258a58';
+  c.fillRect((d.cols-2)*d.cw,(d.rows-2)*d.ch,d.cw,d.ch);
+  c.fillStyle = '#fff';
+  c.font = 'bold 10px monospace';
+  c.textAlign = 'center';
+  c.fillText('ÜZLET',(d.cols-1.5)*d.cw,(d.rows-1.5)*d.ch+4);
+  const x = (d.x+.5)*d.cw, y = (d.y+.5)*d.ch;
+  c.fillStyle = '#e20074';
+  c.fillRect(x-8,y-1,16,13);
+  c.fillStyle = '#f1bc8d';
+  c.beginPath();
+  c.arc(x,y-6,7,0,Math.PI*2);
+  c.fill();
+  c.fillStyle = '#24334c';
+  c.fillRect(x-7,y+10,5,7);
+  c.fillRect(x+2,y+10,5,7);
+}
+
+const PRICE_MODELS = [
+  {name:'Nova 5G',before:'119 990 Ft',after:'99 990 Ft'},
+  {name:'Pixel Pro',before:'169 990 Ft',after:'149 990 Ft'}
+];
+function buildPriceTags() {
+  const d = mini.data;
+  d.peeled = new Set();
+  d.replaced = new Set();
+  $('task').innerHTML = '<div class="price-display">'+PRICE_MODELS.map((model,i)=>
+    '<div class="phone-stand"><div class="display-phone" aria-hidden="true"></div><strong>'+model.name+'</strong>'+
+    '<button class="old-price" data-peel="'+i+'" aria-label="Régi ár leszakítása, '+model.name+'">'+model.before+'</button>'+
+    '<button class="drop-slot hidden" data-drop="'+i+'">Új ár helye</button></div>'
+  ).join('')+'</div><div class="stock-grid">'+shuffle([0,1]).map(i=>
+    '<button class="stock-item" data-item="'+i+'">'+PRICE_MODELS[i].name+'<br>'+PRICE_MODELS[i].after+'</button>'
+  ).join('')+'</div>';
+  const panel = $('task');
+  panel.querySelectorAll('[data-peel]').forEach(button => {
+    button.onclick = () => {
+      if (mini.done) return;
+      const i = Number(button.dataset.peel);
+      d.peeled.add(i);
+      button.classList.add('hidden');
+      panel.querySelector('[data-drop="'+i+'"]').classList.remove('hidden');
+      $('status').textContent = 'Régi címke leszakítva.';
+      tone(380,.07);
+    };
+  });
+  bindMiniDrag((item,target,button,slot) => {
+    const i = Number(item);
+    if (item !== target || !d.peeled.has(i)) {
+      $('status').textContent = 'Ellenőrizd a telefon típusát az árcímkén!';
+      return;
+    }
+    d.replaced.add(i);
+    slot.textContent = PRICE_MODELS[i].after;
+    slot.classList.add('placed-item');
+    slot.disabled = button.disabled = true;
+    $('status').textContent = d.replaced.size+' / 2 árcímke a helyén';
+    tone(640,.08);
+    if (d.replaced.size === 2) resolve(true);
+  });
+}
+
+const UNIFORM_ITEMS = [
+  ['jeans','Levi\'s farmer'],['shirt','Fekete póló'],
+  ['badge','Fehér kitűző · Károly'],['shoes','Converse cipő'],
+  ['bottle','Magenta kulacs'],['','Világoskék farmer'],
+  ['','Piros póló'],['','Sárga kitűző'],
+  ['','Piros futócipő'],['','Zöld kulacs']
+];
+
+function uniformPaint(c, shape, fill, stroke, width = 1) {
+  const path = new Path2D(shape);
+  if (fill) {
+    c.fillStyle = fill;
+    c.fill(path);
+  }
+  if (stroke) {
+    c.strokeStyle = stroke;
+    c.lineWidth = width;
+    c.stroke(path);
+  }
+}
+function uniformGradient(c, left, right, colors) {
+  const gradient = c.createLinearGradient(left,0,right,0);
+  colors.forEach((color,i)=>gradient.addColorStop(i/(colors.length-1),color));
+  return gradient;
+}
+function paintUniformItem(c, item, alternate = false) {
+  switch (item) {
+    case 0: {
+      const fabric = uniformGradient(c,72,130,alternate ? ['#4a7fa1','#a6c7da','#5688a9'] : ['#122840','#284768','#182c45']);
+      uniformPaint(c,'M73 125 Q100 119 127 125 L132 159 L125 229 Q116 233 104 229 L100 167 L94 229 Q82 233 71 228 L69 161 Z',fabric,'#111e30');
+      uniformPaint(c,'M73 132 Q100 128 128 132 M76 139 Q87 153 93 137 M123 138 Q114 153 107 137 M99 134 L99 155 Q103 158 104 150 M74 163 L74 222 M126 163 L123 224 M76 222 L93 223 M105 223 L124 222',null,alternate?'#466e85':'#6683a2',.85);
+      uniformPaint(c,'M98 132 a1.6 1.6 0 1 0 3.2 0 a1.6 1.6 0 1 0 -3.2 0','#c0a46c');
+      break;
+    }
+    case 1: {
+      const fabric = uniformGradient(c,57,145,alternate ? ['#6c2739','#b64355','#6c2739'] : ['#101419','#343940','#12151a']);
+      uniformPaint(c,'M85 64 Q99 72 115 64 L132 69 Q143 73 151 91 L135 101 L128 91 L130 130 Q101 139 70 130 L73 92 L66 102 L49 92 Q55 74 70 69 Z',fabric,'#151a20',1.3);
+      uniformPaint(c,'M85 64 Q98 84 115 64 M54 90 L65 97 M136 96 L147 89 M72 126 Q103 134 128 126 M77 93 Q79 100 78 114 M122 103 Q121 112 125 121',null,alternate?'#e0747d':'#565d65',1.2);
+      break;
+    }
+    case 2:
+      uniformPaint(c,'M108 84 H134 V96 H108 Z',alternate?'#efb948':'#f7f2e6','#31383c',.75);
+      uniformPaint(c,'M109 85 H133',null,'#ffffff');
+      c.fillStyle = '#202a32';
+      c.font = 'bold 6px system-ui';
+      c.textAlign = 'center';
+      c.fillText(alternate?'VENDÉG':'Károly',121,92);
+      break;
+    case 3:
+      for (const [x, mirror] of [[79,1],[119,-1]]) {
+        c.save();
+        c.translate(x,234);
+        c.scale(mirror,1);
+        uniformPaint(c,'M-6 -8 L9 -7 L12 3 Q13 8 9 9 L-18 9 Q-23 9 -21 4 L-11 0 Z',alternate?'#9b3545':'#191d24','#10151a');
+        uniformPaint(c,'M-22 5 Q-16 6 -7 5 L12 5 L12 9 Q11 11 8 11 H-19 Q-23 11 -22 5 Z','#eae4d8','#252c2d');
+        uniformPaint(c,'M-17 3 Q-9 2 -6 -1 L4 2 M-8 -3 L0 -2 M-5 -5 L3 -4',null,'#f6efe2',1.3);
+        c.restore();
+      }
+      break;
+    case 4: {
+      const plastic = uniformGradient(c,151,169,alternate ? ['#126250','#58d59b','#157254'] : ['#8d1453','#ee459e','#9e195f']);
+      uniformPaint(c,'M155 122 H165 V130 Q170 132 170 137 V159 Q170 163 166 163 H154 Q150 163 150 159 V137 Q150 132 155 130 Z',plastic,'#351e3a');
+      uniformPaint(c,'M154 119 H166 V128 H154 Z','#2a313c','#101921');
+      uniformPaint(c,'M154 138 V157 M157 121 V126 M160 121 V126 M163 121 V126',null,'#ffffff80');
+      break;
+    }
+  }
+}
+
+function drawUniformFigure(dressed) {
+  const c = $('uniformFigure').getContext('2d');
+  c.setTransform(2,0,0,2,0,0);
+  c.clearRect(0,0,200,260);
+  c.fillStyle = '#07131070';
+  c.beginPath();
+  c.ellipse(100,244,63,9,0,0,Math.PI*2);
+  c.fill();
+  const skin = uniformGradient(c,50,150,['#a9755e','#e2b798','#ba866b']);
+  uniformPaint(c,'M71 73 Q81 65 88 63 L91 51 H109 L112 63 Q121 66 130 73 L129 103 L122 128 L128 149 L123 183 L120 226 L107 228 L101 163 H98 L92 228 L78 228 L73 178 L72 150 L77 128 L70 103 Z','#90949b','#383f4b',1.3);
+  uniformPaint(c,'M73 73 Q62 71 58 84 L49 107 L42 133 Q40 141 47 144 Q52 144 55 137 L66 113 L75 96 M127 73 Q138 73 142 87 L149 111 L159 132 Q163 138 157 143 Q152 144 147 137 L133 113 L125 96',skin,'#735447',1.1);
+  uniformPaint(c,'M79 224 L92 224 L93 236 L71 236 Q68 231 79 224 M108 224 L121 224 Q131 227 133 235 L108 236 Z','#7a8389','#4e5961');
+  uniformPaint(c,'M90 49 L109 49 L112 65 Q100 72 87 65 Z',skin,'#895f50');
+  uniformPaint(c,'M82 33 Q78 30 79 38 Q79 44 84 44 M116 33 Q122 30 121 38 Q121 44 116 44',skin,'#865f51');
+  uniformPaint(c,'M83 27 Q84 15 100 16 Q116 16 117 29 L115 45 Q113 54 104 58 Q98 61 92 57 Q85 53 84 44 Z',uniformGradient(c,83,116,['#a9755e','#edc3a2','#bd8b73']),'#825d51');
+  uniformPaint(c,'M82 36 Q78 24 84 17 Q93 8 107 12 Q119 14 119 25 L117 36 L114 27 Q107 29 99 24 Q92 30 86 27 L85 37 Z',uniformGradient(c,82,120,['#262220','#4e3831','#292522']),'#211d1e');
+  uniformPaint(c,'M87 35 Q92 33 96 35 M104 35 Q109 33 113 35 M90 39 H94 M106 39 H110 M101 38 L99 45 L103 45 M94 50 Q100 53 106 49',null,'#5b423b',1.25);
+  uniformPaint(c,'M78 105 Q91 108 101 107 Q112 107 123 104 M75 140 L124 140 M101 144 L101 157',null,'#cad0d340',1.4);
+  [0,1,2,3,4].forEach(i=>{
+    if (dressed.has(UNIFORM_ITEMS[i][0])) paintUniformItem(c,i);
+  });
+  if (dressed.has('bottle')) {
+    uniformPaint(c,'M151 132 Q155 130 160 134 L160 141 Q154 146 150 141 Z',skin,'#825d51',.7);
+  }
+}
+
+function drawUniformStock() {
+  const crops = [[67,120,68,114],[48,62,105,76],[107,82,28,16],[55,224,88,23],[149,118,23,46]];
+  $('task').querySelectorAll('[data-uniform-art]').forEach(canvas=>{
+    const i = Number(canvas.dataset.uniformArt);
+    const kind = i%5;
+    const [x,y,w,h] = crops[kind];
+    const c = canvas.getContext('2d');
+    const scale = Math.min(68/w,44/h);
+    c.translate((80-w*scale)/2,(52-h*scale)/2);
+    c.scale(scale,scale);
+    c.translate(-x,-y);
+    paintUniformItem(c,kind,i>=5);
+  });
+}
+
+function buildUniform() {
+  const d = mini.data;
+  d.dressed = new Set();
+  const slots = [
+    ['shirt','Póló · törzs'],['badge','Kitűző · mellkas'],['jeans','Farmer · lábak'],
+    ['shoes','Cipő · lábfej'],['bottle','Kulacs · kéz']
+  ];
+  $('task').innerHTML = '<div class="uniform-room"><div class="mannequin" data-drop="mannequin"><canvas id="uniformFigure" width="400" height="520" role="img" aria-label="Károly, az öltöztethető próbabábu"></canvas>'+
+    slots.map(([key,label])=>'<button class="outfit-slot outfit-'+key+'" data-drop="'+key+'" aria-label="'+label+'" title="'+label+'"></button>').join('')+
+    '</div><div class="wardrobe">'+shuffle(UNIFORM_ITEMS.map((_,i)=>i)).map(i=>
+    '<button class="stock-item" data-item="'+i+'"><canvas aria-hidden="true" width="80" height="52" data-uniform-art="'+i+'"></canvas><span>'+UNIFORM_ITEMS[i][1]+'</span></button>'
+  ).join('')+'</div></div>';
+  drawUniformFigure(d.dressed);
+  drawUniformStock();
+  bindMiniDrag((item,target,button,slot) => {
+    const [correct] = UNIFORM_ITEMS[Number(item)];
+    if (!correct) {
+      resolve(false,'Rossz ruhadarab vagy kiegészítő került a bábura');
+      return;
+    }
+    if (target !== correct || d.dressed.has(correct)) {
+      $('status').textContent = 'Húzd a darabot a megfelelő testrészre!';
+      return;
+    }
+    if (correct === 'badge' && !d.dressed.has('shirt')) {
+      $('status').textContent = 'Előbb add rá a fekete pólót!';
+      return;
+    }
+    d.dressed.add(correct);
+    slot.classList.add('worn');
+    button.disabled = true;
+    drawUniformFigure(d.dressed);
+    $('status').textContent = d.dressed.size+' / 5 darab a helyén';
+    tone(630,.07);
+    if (d.dressed.size === 5) resolve(true);
+  });
+}
+
+function createCableMaze(){const cols=9,rows=7,grid=Array.from({length:rows},()=>Array(cols).fill(1));function carve(x,y){grid[y][x]=0;for(const [dx,dy]of shuffle([[2,0],[-2,0],[0,2],[0,-2]])){const nx=x+dx,ny=y+dy;if(nx>0&&ny>0&&nx<cols-1&&ny<rows-1&&grid[ny][nx]){grid[y+dy/2][x+dx/2]=0;carve(nx,ny)}}}carve(1,1);return {grid,cols,rows,cw:420/cols,ch:280/rows}}
+function mazePointClear(d,x,y){const r=3;return [[0,0],[r,0],[-r,0],[0,r],[0,-r]].every(([dx,dy])=>{const col=Math.floor((x+dx)/d.cw),row=Math.floor((y+dy)/d.ch);return row>=0&&col>=0&&row<d.rows&&col<d.cols&&d.grid[row][col]===0})}
+function buildCableMaze(){Object.assign(mini.data,createCableMaze());const d=mini.data;d.start={x:d.cw*1.5,y:d.ch*1.5};d.goal={x:d.cw*7.5,y:d.ch*5.5};d.tip={...d.start};d.trace=[{...d.start}];d.dragging=false;d.errors=0;$('task').innerHTML='<canvas id="cableMaze" width="420" height="280" aria-label="Kábelcsatorna: húzd a magenta kábelvéget a zöld aljzathoz"></canvas><p id="feedback" class="feedback">Fogd meg a magenta kábelvéget, és vezesd a zöld aljzathoz!</p><button id="mazeRestart" class="wide secondary">Kábel visszahúzása</button>';const canvas=$('cableMaze');const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*420/r.width,y:(e.clientY-r.top)*280/r.height}};canvas.onpointerdown=e=>{if(mini.done||mini.phase!=='play')return;e.preventDefault();const p=point(e);if(Math.hypot(p.x-d.tip.x,p.y-d.tip.y)>20){$('feedback').textContent='A magenta kábelvégből indulj!';return}d.dragging=true;d.pointer=e.pointerId;canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!d.dragging||mini.done||e.pointerId!==d.pointer)return;e.preventDefault();feedCable(point(e))};canvas.onpointerup=canvas.onpointercancel=()=>{d.dragging=false};$('mazeRestart').onclick=()=>{if(!mini.done)resetCableTrace(false)};drawCableMaze()}
+function resetCableTrace(hit){const d=mini.data;d.dragging=false;d.tip={...d.start};d.trace=[{...d.start}];if(hit){d.errors++;d.flashUntil=performance.now()+350;tone(160,.1);$('feedback').textContent='Falhoz ért a kábel! Indulj újra a magenta csatlakozótól.'}else $('feedback').textContent='Kábel visszahúzva. A magenta csatlakozótól indulj!';drawCableMaze()}
+function feedCable(p){if(!mini||mini.type!==10||mini.done)return;const d=mini.data,from={...d.tip},dist=Math.hypot(p.x-from.x,p.y-from.y),steps=Math.max(1,Math.ceil(dist/2));for(let i=1;i<=steps;i++){const x=from.x+(p.x-from.x)*i/steps,y=from.y+(p.y-from.y)*i/steps;if(!mazePointClear(d,x,y)){resetCableTrace(true);return}d.tip={x,y};d.trace.push({x,y});if(Math.hypot(x-d.goal.x,y-d.goal.y)<11){d.dragging=false;drawCableMaze();resolve(true);return}}$('feedback').textContent='Vezesd tovább a kábelt a zöld aljzathoz!';drawCableMaze()}
+function drawCableMaze(){const d=mini.data,c=$('cableMaze').getContext('2d');c.fillStyle='#192e2b';c.fillRect(0,0,420,280);d.grid.forEach((row,y)=>row.forEach((v,x)=>{c.fillStyle=v?(performance.now()<d.flashUntil?'#844642':'#364b46'):'#a1ac99';c.fillRect(x*d.cw,y*d.ch,d.cw,d.ch);if(v){c.fillStyle='#60746c';c.fillRect(x*d.cw+2,y*d.ch+2,d.cw-4,3)}else{c.strokeStyle='#7d907f';c.lineWidth=1;c.strokeRect(x*d.cw+3,y*d.ch+3,d.cw-6,d.ch-6)}}));c.fillStyle='#224b36';c.fillRect(d.goal.x-14,d.goal.y-13,28,26);c.strokeStyle='#94ffbb';c.lineWidth=3;c.strokeRect(d.goal.x-12,d.goal.y-11,24,22);c.fillStyle='#e20074';c.fillRect(d.start.x-12,d.start.y-11,24,22);c.strokeStyle='#3c2340';c.lineWidth=9;c.lineJoin=c.lineCap='round';c.beginPath();d.trace.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.stroke();c.strokeStyle='#f02d9c';c.lineWidth=5;c.stroke();c.fillStyle='#fff5d0';c.beginPath();c.arc(d.tip.x,d.tip.y,6,0,7);c.fill();c.strokeStyle='#e20074';c.lineWidth=2;c.stroke()}
+
+function updateUrgency(t){if(t>=nextUrgent){const free=spots.filter(s=>!s.done&&!s.urgentUntil&&!s.delivery&&usedTasks.size<TASK_IDS.length&&mini?.site!==s);if(free.length){const s=free[rand(free.length)];s.urgentUntil=t+24000}nextUrgent=t+28000}spots.forEach(s=>{if(s.urgentUntil&&s.urgentUntil<t)s.urgentUntil=0});const hot=spots.find(s=>s.urgentUntil>t&&!s.done);$('urgent').textContent=hot?'⚡ Sürgős hibacím · '+Math.ceil((hot.urgentUntil-t)/1000)+' s · 10 ★':'Magenta cím: 5 ★ · Narancs cím: 10 ★'}
+
+// Retro city renderer and lane-following traffic.
+const traffic=[],palette=['#c2ad4b','#9e3c34','#4c8588','#b5b6a9','#57699c','#496c40'];
+// One lane per direction, with one shared centerline per stream.
+function initTraffic(){traffic.length=0;for(let i=0;i<64;i++){const horizontal=i%2===0,road=1+Math.floor(i/4)%5,lane=Math.floor(i/2)%2,dir=lane===0?1:-1,offset=25*dir,type=i%9===0?'bus':i%7===0?'truck':'car',len=type==='truck'?92:type==='bus'?74:44,width=type==='car'?24:28;const n={horizontal,road,lane,dir,type,len,width,color:palette[rand(palette.length)],a:horizontal?(dir>0?0:Math.PI):(dir>0?Math.PI/2:-Math.PI/2),speed:(type==='truck'?48:type==='bus'?58:72)+rand(type==='car'?55:22),v:0,brake:false};let pos;for(let attempt=0;attempt<100;attempt++){pos=80+rand(SIZE-160);const candidate={...n,x:horizontal?pos:road*STEP-offset,y:horizontal?road*STEP+offset:pos};if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(candidate),hull(o),25))&&!hullsOverlap(hull(candidate),hull({x:725,y:668,a:0},true),20))break}n.x=horizontal?pos:road*STEP-offset;n.y=horizontal?road*STEP+offset:pos;n.v=n.speed;if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(n),hull(o),2))&&!hullsOverlap(hull(n),hull({x:725,y:668,a:0},true),2))traffic.push(n)}}
+// Oriented rectangles include wheels and the full bus/trailer body.
+function hull(v,player=false){const a=player?v.a:(v.horizontal?(v.dir>0?0:Math.PI):(v.dir>0?Math.PI/2:-Math.PI/2));return {x:v.x,y:v.y,a,hx:player?23:v.len/2+1,hy:player?16:v.type==='car'?16:v.width/2+2}}
+function hullsOverlap(a,b,margin=1){const reach=a.hx+a.hy+b.hx+b.hy+margin;if(Math.abs(a.x-b.x)>=reach||Math.abs(a.y-b.y)>=reach)return false;const ax=[Math.cos(a.a),Math.sin(a.a)],ay=[-ax[1],ax[0]],bx=[Math.cos(b.a),Math.sin(b.a)],by=[-bx[1],bx[0]],dx=b.x-a.x,dy=b.y-a.y;for(const u of [ax,ay,bx,by]){const ra=a.hx*Math.abs(ax[0]*u[0]+ax[1]*u[1])+a.hy*Math.abs(ay[0]*u[0]+ay[1]*u[1]),rb=b.hx*Math.abs(bx[0]*u[0]+bx[1]*u[1])+b.hy*Math.abs(by[0]*u[0]+by[1]*u[1]);if(Math.abs(dx*u[0]+dy*u[1])>=ra+rb+margin)return false}return true}
+// Physical shapes follow the drawn body, wheels and trailer; shadows are visual only.
+function vehicleParts(v,player=false){const h=hull(v,player),co=Math.cos(h.a),si=Math.sin(h.a),rects=[];const add=(x,y,w,height)=>rects.push({x:h.x+(x+w/2)*co-(y+height/2)*si,y:h.y+(x+w/2)*si+(y+height/2)*co,a:h.a,hx:w/2,hy:height/2});if(player||v.type==='car'){add(-23,-13,46,26);add(-16,-16,9,32);add(9,-16,8,32)}else{const L=v.len/2,w=v.width/2;add(-L+9,-w-2,8,v.width+4);add(L-12,-w-2,8,v.width+4);if(v.type==='bus')add(-L,-w,v.len,v.width);else{add(-L+3,-6,v.len-4,12);add(-L,-w,v.len-27,v.width);add(L-23,-w+1,23,v.width-2);add(L-2,-w+1,3,4);add(L-2,w-5,3,4)}}return rects}
+function vehiclesOverlap(a,b,aPlayer=false,bPlayer=false){if(!hullsOverlap(hull(a,aPlayer),hull(b,bPlayer),0))return false;const ap=vehicleParts(a,aPlayer),bp=vehicleParts(b,bPlayer);return ap.some(x=>bp.some(y=>hullsOverlap(x,y,0)))}
+function playerClear(x,y,a){const p={x,y,a};return !traffic.some(n=>vehiclesOverlap(p,n,true,false))}
+function trafficClear(n,x,y,includePlayer=true){const candidate={...n,x,y};return !traffic.some(o=>o!==n&&vehiclesOverlap(candidate,o))&&(!includePlayer||!vehiclesOverlap(candidate,car,false,true))}
+function movePlayer(turn,distance,t){const count=Math.max(1,Math.ceil(Math.abs(distance)/2),Math.ceil(Math.abs(turn)/.015));let hit=false;for(let i=0;i<count;i++){const nextA=car.a+turn/count;if(playerClear(car.x,car.y,nextA))car.a=nextA;else{let lo=0,hi=1;for(let k=0;k<10;k++){const mid=(lo+hi)/2;if(playerClear(car.x,car.y,car.a+turn/count*mid))lo=mid;else hi=mid}car.a+=turn/count*lo;hit=true}const dx=Math.cos(car.a)*distance/count,dy=Math.sin(car.a)*distance/count;const clear=f=>valid(car.x+dx*f,car.y+dy*f)&&playerClear(car.x+dx*f,car.y+dy*f,car.a);if(clear(1)){car.x+=dx;car.y+=dy}else{let lo=0,hi=1;for(let k=0;k<12;k++){const mid=(lo+hi)/2;if(clear(mid))lo=mid;else hi=mid}car.x+=dx*lo;car.y+=dy*lo;hit=true;break}}const impactSpeed=Math.abs(car.v);if(hit){car.v*=-.12;if(t>slowUntil){slowUntil=t+600;toastUntil=t+600;crashSound(impactSpeed)}}recordContact(hit,impactSpeed,t);return hit}
+function junctionBlocked(n,ix,iy,t){const green=Math.floor(t/6500)%2===(n.horizontal?0:1)&&t%6500<5400;if(!green)return true;const square={x:ix*STEP,y:iy*STEP,a:0,hx:60,hy:60};if(traffic.some(o=>o!==n&&o.horizontal!==n.horizontal&&hullsOverlap(square,hull(o))))return true;const exit=(n.horizontal?ix:iy)*STEP+n.dir*(65+n.len/2+14);const box=hull({...n,x:n.horizontal?exit:n.x,y:n.horizontal?n.y:exit});return traffic.some(o=>o!==n&&o.horizontal===n.horizontal&&hullsOverlap(box,hull(o),4))}
+function updateTraffic(dt,t){const cycle=SIZE+240,snapshot=traffic.map(n=>({n,x:n.x,y:n.y,v:n.v}));for(const n of traffic){const axis=n.horizontal?n.x:n.y;let desired=n.speed;for(const o of snapshot){if(o.n===n||o.n.horizontal!==n.horizontal||o.n.road!==n.road||o.n.lane!==n.lane)continue;let ahead=((n.horizontal?o.x:o.y)-axis)*n.dir;if(ahead<0)ahead+=cycle;const gap=ahead-(n.len+o.n.len)/2;if(gap<20+n.speed*.9)desired=Math.min(desired,Math.max(0,(gap-16)*1.5))}
+for(let j=1;j<=5;j++){const dist=(j*STEP-axis)*n.dir,stop=dist-n.len/2-65;if(stop>=-.1&&stop<120&&junctionBlocked(n,n.horizontal?j:n.road,n.horizontal?n.road:j,t))desired=Math.min(desired,Math.max(0,stop*1.8))}
+const across=n.horizontal?Math.abs(car.y-n.y):Math.abs(car.x-n.x),ahead=((n.horizontal?car.x:car.y)-axis)*n.dir,stopGap=ahead-n.len/2-25;if(across<(n.width/2+22)&&ahead>0&&stopGap<100)desired=Math.min(desired,Math.max(0,(stopGap-7)*1.3));n.brake=desired<n.v-3;n.v=Math.max(0,n.v+Math.max(-220*dt,Math.min(50*dt,desired-n.v)));let distance=n.v*dt;const steps=Math.max(1,Math.ceil(distance/3)),step=distance/steps;for(let i=0;i<steps;i++){let x=n.x+(n.horizontal?n.dir*step:0),y=n.y+(n.horizontal?0:n.dir*step);if(x<-120)x=SIZE+120;if(x>SIZE+120)x=-120;if(y<-120)y=SIZE+120;if(y>SIZE+120)y=-120;const oldAxis=n.horizontal?n.x:n.y,newAxis=n.horizontal?x:y;const redGate=[1,2,3,4,5].some(j=>{const oldStop=(j*STEP-oldAxis)*n.dir-n.len/2-65,newStop=(j*STEP-newAxis)*n.dir-n.len/2-65;return oldStop>=-.01&&newStop<0&&junctionBlocked(n,n.horizontal?j:n.road,n.horizontal?n.road:j,t)});if(redGate||!trafficClear(n,x,y)){n.v=0;n.brake=true;break}n.x=x;n.y=y}}}
+function trafficVehicle(n){if(n.type==='car'){ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.a);ctx.scale(1,1);vehicle(0,0,0,n.color,false,n.brake);ctx.restore();return}ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.a);const L=n.len/2,w=n.width/2;ctx.fillStyle='#0006';ctx.fillRect(-L+4,-w+4,n.len,w*2);ctx.fillStyle='#111';[-L+9,L-12].forEach(x=>{ctx.fillRect(x,-w-2,8,w*2+4)});if(n.type==='bus'){ctx.fillStyle=n.color;ctx.fillRect(-L,-w,n.len,w*2);ctx.fillStyle='#e4dfbd';ctx.fillRect(-L+3,-w+4,n.len-8,w*2-8);ctx.fillStyle='#244550';ctx.fillRect(L-10,-w+2,7,w*2-4);for(let x=-L+7;x<L-12;x+=10){ctx.fillStyle='#273f49';ctx.fillRect(x,-w,7,3);ctx.fillRect(x,w-3,7,3)}ctx.fillStyle='#adb5a8';ctx.fillRect(-12,-5,16,10);ctx.fillRect(10,-4,10,8);ctx.fillStyle='#294a36';ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.fillText('BUS',-18,3)}else{ctx.fillStyle='#202925';ctx.fillRect(-L+3,-6,n.len-4,12);ctx.fillStyle='#d2c9ad';ctx.fillRect(-L,-w,n.len-27,w*2);ctx.strokeStyle='#9b957d';ctx.lineWidth=1;for(let x=-L+6;x<L-30;x+=8){ctx.beginPath();ctx.moveTo(x,-w+2);ctx.lineTo(x,w-2);ctx.stroke()}ctx.fillStyle=n.color;ctx.fillRect(L-23,-w+1,23,w*2-2);ctx.fillStyle='#254450';ctx.fillRect(L-9,-w+2,6,w*2-4);ctx.fillStyle='#b7bbac';ctx.fillRect(L-21,-w+3,9,w*2-6)}ctx.fillStyle='#fff2b0';ctx.fillRect(L-2,-w+1,3,4);ctx.fillRect(L-2,w-5,3,4);ctx.fillStyle=n.brake?'#ff4335':'#8f2f29';ctx.fillRect(-L,-w+1,3,4);ctx.fillRect(-L,w-5,3,4);ctx.restore()}
+
+initTraffic();
+function vehicle(x,y,a,color,player=false,brake=false,winker=0){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#0007';ctx.fillRect(-23,-10,48,26);ctx.fillStyle='#141414';ctx.fillRect(-16,-16,9,32);ctx.fillRect(9,-16,8,32);ctx.fillStyle='#222';ctx.fillRect(-23,-13,46,26);ctx.fillStyle=color;ctx.fillRect(-22,-12,44,24);ctx.fillStyle='#ffffff38';ctx.fillRect(-19,-11,37,3);ctx.fillStyle='#0004';ctx.fillRect(-19,9,38,3);ctx.fillStyle='#18292e';ctx.fillRect(7,-10,8,20);ctx.fillRect(-15,-9,6,18);ctx.fillStyle='#9cb3ac';ctx.fillRect(8,-8,3,16);ctx.fillStyle=color;ctx.fillRect(-7,-10,12,20);ctx.strokeStyle='#0005';ctx.lineWidth=1;ctx.strokeRect(-7,-10,12,20);ctx.fillStyle='#e9e7b8';ctx.fillRect(20,-10,3,5);ctx.fillRect(20,5,3,5);ctx.fillStyle=brake?'#ff4634':'#7a2721';ctx.fillRect(-23,-10,3,5);ctx.fillRect(-23,5,3,5);if(!player){ctx.fillStyle='#ffffff24';ctx.fillRect(-4,-8,7,2);ctx.fillStyle='#0a171d';ctx.fillRect(3,-11,2,22);ctx.fillStyle='#8ba4aa';ctx.fillRect(8,-8,2,7);ctx.fillRect(-14,-7,2,6);ctx.fillStyle='#303735';ctx.fillRect(-6,-13,4,2);ctx.fillRect(-6,11,4,2);ctx.fillStyle='#c6ccc5';ctx.fillRect(19,-5,3,10);ctx.fillRect(-22,-4,2,8);ctx.fillStyle='#e3ddc2';ctx.fillRect(-22,-2,2,4);ctx.fillStyle='#0004';ctx.fillRect(-18,-9,2,18);ctx.fillRect(16,-9,1,18)}if(player){ctx.fillStyle='#ecece1';ctx.fillRect(-20,-11,23,22);ctx.fillStyle='#e20074';ctx.fillRect(-14,-7,5,14);ctx.fillStyle='#56626a';ctx.fillRect(-19,-12,22,3);ctx.fillRect(-19,9,22,3);ctx.fillStyle='#ccc';ctx.fillRect(-18,-2,19,3)}if(winker&&Math.floor(performance.now()/300)%2){ctx.fillStyle='#ffb52f';ctx.fillRect(17,winker>0?11:-15,6,4)}ctx.restore()}
+function cityMap(){const map=document.createElement('canvas');map.width=map.height=SIZE;const g=map.getContext('2d');g.fillStyle='#515950';g.fillRect(0,0,SIZE,SIZE);for(let x=0;x<=SIZE;x+=STEP){g.fillStyle='#aaa58d';g.fillRect(x-63,0,126,SIZE);g.fillRect(0,x-63,SIZE,126);g.fillStyle='#3d403b';g.fillRect(x-50,0,100,SIZE);g.fillRect(0,x-50,SIZE,100);g.strokeStyle='#c2b874';g.lineWidth=2;g.setLineDash([15,15]);g.beginPath();g.moveTo(x,0);g.lineTo(x,SIZE);g.moveTo(0,x);g.lineTo(SIZE,x);g.stroke();g.setLineDash([])}
+// Seeded texture keeps asphalt and roofs stable between frames.
+let seed=71;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};for(let i=0;i<80000;i++){g.fillStyle=i%2?'#ffffff09':'#00000016';g.fillRect(rnd()*SIZE,rnd()*SIZE,1+rnd()*3,1+rnd()*3)}
+for(let x=STEP;x<SIZE;x+=STEP)for(let y=STEP;y<SIZE;y+=STEP){g.fillStyle='#d0cdad';for(let j=-3;j<=3;j++){g.fillRect(x-48,y+57+j*5,18,2);g.fillRect(x+30,y-59+j*5,18,2)}g.fillStyle='#a89f74';g.font='bold 10px monospace';g.fillText('SLOW',x+11,y+87);g.fillStyle='#292d29';g.fillRect(x+57,y+55,5,11);g.fillStyle='#78a962';g.fillRect(x+58,y+57,3,3)}
+const roofs=['#8e8266','#777b72','#92725c','#6b7775','#8a8a7e'];buildings.forEach((b,k)=>{if(b.park){g.fillStyle='#566746';g.fillRect(b.x,b.y,b.w,b.h);g.fillStyle='#9a9279';g.fillRect(b.x+84,b.y,16,b.h);g.fillRect(b.x,b.y+84,b.w,16);g.strokeStyle='#9ca87a';g.lineWidth=2;g.strokeRect(b.x+3,b.y+3,b.w-6,b.h-6);for(let i=0;i<4;i++){let bx=b.x+30+(i%2)*105,by=b.y+58+Math.floor(i/2)*65;g.fillStyle='#302d20';g.fillRect(bx,by+4,22,8);g.fillStyle='#a68a54';g.fillRect(bx,by,22,5)}g.fillStyle='#c9d6a3';g.font='bold 10px monospace';g.fillText('PARK',b.x+10,b.y+b.h-10);for(let i=0;i<12;i++){let x=b.x+12+(i%4)*43,y=b.y+12+Math.floor(i/4)*55;if(x>b.x+66&&x<b.x+105||y>b.y+64&&y<b.y+104)continue;g.fillStyle='#0004';g.fillRect(x+6,y+8,20,20);g.fillStyle='#324b2b';g.fillRect(x,y,23,23);g.fillStyle='#536940';g.fillRect(x+3,y+2,15,14)}return}g.fillStyle='#10171077';g.fillRect(b.x+14,b.y+19,b.w,b.h);g.fillStyle='#453f35';g.fillRect(b.x,b.y,b.w,b.h);g.fillStyle='#a29377';g.fillRect(b.x+3,b.y+3,b.w-6,b.h-18);g.fillStyle=roofs[k%roofs.length];g.fillRect(b.x+7,b.y+7,b.w-14,b.h-30);for(let i=0;i<350;i++){g.fillStyle=i%2?'#ffffff12':'#00000018';g.fillRect(b.x+9+rnd()*(b.w-20),b.y+9+rnd()*(b.h-36),2+rnd()*5,2)}g.strokeStyle='#332f2960';for(let y=20;y<b.h-20;y+=14){g.beginPath();g.moveTo(b.x+8,b.y+y);g.lineTo(b.x+b.w-8,b.y+y);g.stroke()}for(let i=0;i<5;i++){g.fillStyle='#222b28';g.fillRect(b.x+13+i*34,b.y+b.h-14,18,8);g.fillStyle='#97a49a';g.fillRect(b.x+14+i*34,b.y+b.h-13,15,2)}for(let i=0;i<3;i++){let x=b.x+25+i*45,y=b.y+35+(i%2)*65;g.fillStyle='#0004';g.fillRect(x+5,y+5,26,22);g.fillStyle='#a5a394';g.fillRect(x,y,26,22);g.fillStyle='#5d635c';g.fillRect(x+3,y+3,20,15);g.fillStyle='#313d37';g.fillRect(x+6,y+7,14,2);g.fillRect(x+6,y+11,14,2)}g.fillStyle='#c9bc94';g.font='bold 12px monospace';g.fillText(['CITY NET','GARAGE','OFFICE','MARKET'][k%4],b.x+14,b.y+b.h-24)});return map}
+const mapTexture=cityMap();
+function draw(t){ctx.imageSmoothingEnabled=false;ctx.fillStyle='#283b48';ctx.fillRect(0,0,W,H);const zoom=Math.min(1.3,Math.max(.85,W/950)),cx=Math.max(0,Math.min(SIZE-W/zoom,car.x-W/2/zoom)),cy=Math.max(0,Math.min(SIZE-H/zoom,car.y-H/2/zoom));ctx.save();ctx.scale(zoom,zoom);ctx.translate(-cx,-cy);ctx.drawImage(mapTexture,0,0);for(let ix=1;ix<=5;ix++)for(let iy=1;iy<=5;iy++){const phase=Math.floor(t/6500)%2,clear=t%6500>=5400;ctx.fillStyle='#15201b';ctx.fillRect(ix*STEP+53,iy*STEP+53,14,12);ctx.fillStyle=!clear&&phase===0?'#69f18c':'#df5c50';ctx.fillRect(ix*STEP+54,iy*STEP+55,5,7);ctx.fillStyle=!clear&&phase===1?'#69f18c':'#df5c50';ctx.fillRect(ix*STEP+61,iy*STEP+55,5,7)}spots.forEach(s=>{const b=buildings[s.block];if(s.fixed&&!b.park){ctx.fillStyle='#ffeab1';for(let i=0;i<5;i++)ctx.fillRect(b.x+13+i*34,b.y+b.h-14,18,8);ctx.fillStyle='#63ffad';ctx.font='bold 16px monospace';ctx.fillText('✓ ONLINE',b.x+20,b.y+25)}ctx.fillStyle=s.fixed?'#3fda8c':s.pending?'#ffb34d':s.failed?'#777':s.urgentUntil>t?'#ffae38':'#ef4c76';ctx.fillRect(b.x+115,b.y+18,9,18);ctx.fillRect(b.x+107,b.y+35,25,3);if(!canOfferTask(s,t))return;ctx.fillStyle=s.delivery?'#4acfe455':s.urgentUntil>t?'#ffae3844':'#e2007433';ctx.fillRect(s.x-32,s.y-20,64,40);ctx.strokeStyle=s.delivery?'#4acfe4':'#ff61b3';ctx.lineWidth=2;ctx.strokeRect(s.x-32,s.y-20,64,40);ctx.fillStyle=s.delivery?'#4acfe4':s.urgentUntil>t?'#ffa52e':'#e20074';ctx.fillRect(s.x-10,s.y-57+Math.sin(t/250)*3,20,26);ctx.fillStyle='#fff';ctx.font='bold 24px monospace';ctx.textAlign='center';ctx.fillText(s.delivery?'◆':s.urgentUntil>t?'⚡':'!',s.x,s.y-35+Math.sin(t/250)*3)});traffic.forEach(trafficVehicle);vehicle(car.x,car.y,car.a,'#df287d',true,keys.back);drawCarDamage(t);ctx.restore();
+// Compact radar shows roads, remaining jobs and player position.
+const mw=Math.min(134,W*.25,Math.max(56,H-250)),mx=W-mw-18,my=H-mw-155;ctx.fillStyle='#111a12de';ctx.fillRect(mx-4,my-4,mw+8,mw+8);ctx.globalAlpha=.8;ctx.drawImage(mapTexture,mx,my,mw,mw);ctx.globalAlpha=1;spots.forEach(s=>{
+  const x=mx+s.x/SIZE*mw,y=my+s.y/SIZE*mw;
+  if(s.delivery){
+    ctx.fillStyle='#4acfe4';ctx.beginPath();
+    ctx.moveTo(x,y-5);ctx.lineTo(x+5,y);ctx.lineTo(x,y+5);ctx.lineTo(x-5,y);
+    ctx.closePath();ctx.fill();return;
+  }
+  ctx.fillStyle=s.fixed?'#5aff9d':s.pending?'#ffbc4d':s.failed||!canOfferTask(s,t)?'#777':s.urgentUntil>t?'#ffae38':'#ff45ae';
+  ctx.fillRect(x-2,y-2,4,4);
+});ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(mx+car.x/SIZE*mw,my+car.y/SIZE*mw,3,0,7);ctx.fill();
+if(state==='drive'){const nearest=spots.filter(s=>canOfferTask(s,t)).sort((a,b)=>Number(!!b.delivery)-Number(!!a.delivery)||Math.hypot(a.x-car.x,a.y-car.y)-Math.hypot(b.x-car.x,b.y-car.y))[0];if(nearest){const dx=nearest.x-car.x,dy=nearest.y-car.y,dist=Math.hypot(dx,dy);$('hint').textContent=t<toastUntil?'Koccanás! Figyelj a forgalomra.':nearest.delivery?'◆ Találkozási pont · '+Math.round(dist)+' m':'Legközelebbi állomás · '+Math.round(dist)+' m · '+(nearest.urgentUntil>t?'SÜRGŐS 10 ★':'5 ★');ctx.save();ctx.translate((car.x-cx)*zoom,(car.y-cy)*zoom);ctx.rotate(Math.atan2(dy,dx));ctx.fillStyle=nearest.delivery?'#4acfe4':'#ff51aa';ctx.beginPath();ctx.moveTo(65,0);ctx.lineTo(51,-8);ctx.lineTo(51,8);ctx.fill();ctx.restore()}else $('hint').textContent=usedTasks.size===TASK_IDS.length?'Minden minijátékot kipróbáltál ebben a műszakban!':'Új feladathoz várj egy sürgős címre!'}}
+function frame(t){const dt=Math.min((t-last)/1000,.035);last=t;if(state==='drive'||state==='mini'){if(!practice&&mini?.phase!=='intro')updateUrgency(t);const left=practice?240000:Math.max(0,deadline-(mini?.phase==='intro'?mini.pauseAt:t));$('time').textContent=String(Math.floor(Math.ceil(left/1000)/60)).padStart(2,'0')+':'+String(Math.ceil(left/1000)%60).padStart(2,'0');if(left<=0)finish();else if(state==='drive'){const acc=(keys.go?210:0)-(keys.back?240:0);car.v+=acc*dt;if(!keys.go&&!keys.back)car.v*=Math.pow(.11,dt);car.v=Math.max(-100,Math.min(t<slowUntil?65:220,car.v));const turn=((keys.right?1:0)-(keys.left?1:0))*2.5*dt*Math.min(1,Math.abs(car.v)/45)*(car.v<0?-1:1);movePlayer(turn,car.v*dt,t);const target=spots.find(s=>canOfferTask(s,t)&&Math.abs(s.x-car.x)<33&&Math.abs(s.y-car.y)<24);if(state==='drive'&&target&&Math.abs(car.v)<27)openTask(target)}else if(mini){$('mt').textContent=mini.phase==='intro'?'ÚTMUTATÓ':Math.max(0,Math.ceil((mini.end-t)/1000))+' s';if(mini.phase==='play'){tickMini(t,dt);if(!mini.done&&t>=mini.end)resolve(false)}if(mini.done&&t>=mini.close){if(practice)practiceMenu();else{state='drive';mini=null;$('mini').classList.add('hidden');$('controls').classList.remove('hidden')}}}}if(state==='exploding'&&t-explosionAt>=1500)finish('explosion');if(state==='drive')updateTraffic(dt,t);updateAudio(t);draw(t);requestAnimationFrame(frame)}requestAnimationFrame(frame);
+</script></body></html>
