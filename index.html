@@ -378,7 +378,7 @@ addEventListener('keydown', event => {
     showStartDetails(false);
   }
 });
-$('sound').onclick=()=>{initAudio();soundOn=!soundOn;$('sound').textContent='Hang: '+(soundOn?'BE':'KI')};$('home').onclick=()=>{state='start';showStartDetails(false, false);$('end').classList.add('hidden');$('start').classList.remove('hidden')};function keysClear(){resetDriveStick();Object.keys(keys).forEach(k=>keys[k]=false)}const keymap={ArrowUp:'go',w:'go',ArrowDown:'back',s:'back',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};addEventListener('keydown',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k){e.preventDefault();if(state==='mini'){return}else keys[k]=true}});addEventListener('keyup',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k)keys[k]=false});addEventListener('blur',keysClear);
+$('home').onclick=()=>{state='start';showStartDetails(false, false);$('end').classList.add('hidden');$('start').classList.remove('hidden')};function keysClear(){resetDriveStick();Object.keys(keys).forEach(k=>keys[k]=false)}const keymap={ArrowUp:'go',w:'go',ArrowDown:'back',s:'back',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};addEventListener('keydown',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k){e.preventDefault();if(state==='mini'){return}else keys[k]=true}});addEventListener('keyup',e=>{const k=keymap[e.key]||keymap[e.key.toLowerCase()];if(k)keys[k]=false});addEventListener('blur',keysClear);
 const driveStick = $('driveStick');
 const driveThumb = $('driveThumb');
 const stickInput = {pointer: null, angle: 0, strength: 0, reversing: false};
@@ -534,11 +534,66 @@ const TASKS = {
 const TASK_IDS = [0,3,5,6,7,8,10,9,13,11,14,12,15,16,18];
 spots.forEach(s=>s.baseLocation=s.location);
 const seen=new Set(),usedTasks=new Set();let lastType=-1,practice=false,slowUntil=0,nextUrgent=0,soundOn=true,audio=null,engine=null,engineGain=null,beepAt=0;
-function initAudio(){try{if(!audio){audio=new(window.AudioContext||window.webkitAudioContext)();engine=audio.createOscillator();engineGain=audio.createGain();engine.type='sawtooth';engineGain.gain.value=0;engine.connect(engineGain);engineGain.connect(audio.destination);engine.start()}audio.resume()}catch(e){}}
-function tone(freq=600,duration=.08,volume=.025){if(!audio||!soundOn)return;const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
+const soundButton = $('sound');
+const touchSpeakerMix = matchMedia('(any-pointer: coarse)').matches;
+
+function updateSoundButton() {
+  soundButton.textContent = !soundOn ? 'Hang: KI' : audio?.state === 'running' ? 'Hang: BE' : 'Hang: indítás';
+}
+
+function initAudio() {
+  if (!soundOn) return;
+  try {
+    if (!audio || audio.state === 'closed') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const context = new AudioContextClass();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = 'sawtooth';
+      gain.gain.value = 0;
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      audio = context;
+      engine = oscillator;
+      engineGain = gain;
+      audio.onstatechange = updateSoundButton;
+    }
+    if (audio.state !== 'running') audio.resume().then(updateSoundButton, updateSoundButton);
+  } catch {
+    updateSoundButton();
+  }
+  updateSoundButton();
+}
+
+soundButton.onclick = () => {
+  if (soundOn && audio?.state === 'running') soundOn = false;
+  else {
+    soundOn = true;
+    initAudio();
+  }
+  updateSoundButton();
+};
+
+function recoverAudioOnInput(event) {
+  if (!event.isTrusted || event.target === soundButton || audio?.state === 'running') return;
+  if (state === 'drive' || state === 'mini') initAudio();
+}
+
+// Touch release is a user gesture even when dragging the joystick suppresses click.
+document.addEventListener('pointerup', recoverAudioOnInput, true);
+document.addEventListener('click', recoverAudioOnInput, true);
+document.addEventListener('keydown', recoverAudioOnInput, true);
+function tone(freq=600,duration=.08,volume=.025){if(audio?.state!=='running'||!soundOn)return;const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
 let lastCrashAt=-Infinity;
-function crashSound(speed=80){if(!soundOn)return;initAudio();if(!audio)return;const stamp=performance.now();if(stamp-lastCrashAt<250)return;lastCrashAt=stamp;try{const at=audio.currentTime,force=Math.min(1,Math.max(.2,Math.abs(speed)/180)),duration=.22,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.17));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='highpass';filter.frequency.value=450;gain.gain.setValueAtTime(.07+force*.15,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration);const thud=audio.createOscillator(),low=audio.createGain();thud.type='triangle';thud.frequency.setValueAtTime(150,at);thud.frequency.exponentialRampToValueAtTime(42,at+.16);low.gain.setValueAtTime(.04+force*.1,at);low.gain.exponentialRampToValueAtTime(.001,at+.19);thud.connect(low);low.connect(audio.destination);thud.start(at);thud.stop(at+.2)}catch(e){tone(85,.15,.05)}}
-function updateAudio(t){if(engine){engine.frequency.setTargetAtTime(42+Math.abs(car.v)*.48,audio.currentTime,.1);engineGain.gain.setTargetAtTime(soundOn&&state==='drive'?.013:0,audio.currentTime,.06)}if(soundOn&&state==='drive'&&(keys.back||stickInput.reversing)&&Math.abs(car.v)>40&&t>beepAt){tone(130,.04,.012);beepAt=t+160}}
+function crashSound(speed=80){if(!soundOn||audio?.state!=='running')return;const stamp=performance.now();if(stamp-lastCrashAt<250)return;lastCrashAt=stamp;try{const at=audio.currentTime,force=Math.min(1,Math.max(.2,Math.abs(speed)/180)),duration=.22,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.17));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='highpass';filter.frequency.value=450;gain.gain.setValueAtTime(.07+force*.15,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration);const thud=audio.createOscillator(),low=audio.createGain();thud.type='triangle';thud.frequency.setValueAtTime(150,at);thud.frequency.exponentialRampToValueAtTime(42,at+.16);low.gain.setValueAtTime(.04+force*.1,at);low.gain.exponentialRampToValueAtTime(.001,at+.19);thud.connect(low);low.connect(audio.destination);thud.start(at);thud.stop(at+.2)}catch(e){tone(85,.15,.05)}}
+function updateAudio(t){if (audio?.state === 'running') {
+  const baseFrequency = touchSpeakerMix ? 72 : 42;
+  const engineVolume = touchSpeakerMix ? .026 : .013;
+  engine.frequency.setTargetAtTime(baseFrequency + Math.abs(car.v) * .48, audio.currentTime, .1);
+  engineGain.gain.setTargetAtTime(soundOn && state === 'drive' ? engineVolume : 0, audio.currentTime, .06);
+}if(soundOn&&state==='drive'&&(keys.back||stickInput.reversing)&&Math.abs(car.v)>40&&t>beepAt){tone(130,.04,.012);beepAt=t+160}}
 // Damage is counted per contact; separating from the obstacle rearms it.
 let collisionCount=0,contactActive=false,contactClearAt=null,explosionAt=0;
 function resetDamage(){collisionCount=0;contactActive=false;contactClearAt=null;explosionAt=0;toastUntil=0;updateDamageHud();$('damage').classList.remove('hidden')}
@@ -608,7 +663,7 @@ document.addEventListener('visibilitychange', () => {
 function updateDamageHud(){const stage=collisionCount>=18?'exploded':collisionCount>=15?'fire':collisionCount>=10?'smoke':'normal';$('damage').dataset.stage=stage;$('damage').textContent='ÜTKÖZÉS '+collisionCount+' / 18 · '+({normal:'ÉP AUTÓ',smoke:'FÜSTÖL',fire:'LÁNGOL',exploded:'MEGSEMMISÜLT'})[stage]}
 function separatedFromObstacles(){return [[0,0],[4,0],[-4,0],[0,4],[0,-4]].every(([dx,dy])=>valid(car.x+dx,car.y+dy)&&playerClear(car.x+dx,car.y+dy,car.a))}
 function recordContact(hit,speed,t){if(state!=='drive')return;if(hit){contactClearAt=null;if(!contactActive){contactActive=true;if(speed>2){collisionCount=Math.min(18,collisionCount+1);updateDamageHud();if(collisionCount===18)explodeCar(t)}}}else if(contactActive&&separatedFromObstacles()){if(contactClearAt===null)contactClearAt=t;if(t-contactClearAt>=150){contactActive=false;contactClearAt=null}}else contactClearAt=null}
-function explosionSound(){if(!soundOn)return;initAudio();if(!audio)return;try{const at=audio.currentTime,duration=1.1,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.2));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='lowpass';filter.frequency.setValueAtTime(2300,at);filter.frequency.exponentialRampToValueAtTime(120,at+duration);gain.gain.setValueAtTime(.42,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration)}catch(e){tone(55,.8,.12)}}
+function explosionSound(){if(!soundOn||audio?.state!=='running')return;try{const at=audio.currentTime,duration=1.1,buffer=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(data.length*.2));const noise=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();noise.buffer=buffer;filter.type='lowpass';filter.frequency.setValueAtTime(2300,at);filter.frequency.exponentialRampToValueAtTime(120,at+duration);gain.gain.setValueAtTime(.42,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);noise.connect(filter);filter.connect(gain);gain.connect(audio.destination);noise.start(at);noise.stop(at+duration)}catch(e){tone(55,.8,.12)}}
 function explodeCar(t){if(state!=='drive')return;cancelRepair();explosionAt=t;state='exploding';car.v=0;keysClear();$('controls').classList.add('hidden');$('urgent').classList.add('hidden');$('hint').textContent='Az autó felrobbant!';explosionSound()}
 function drawEngineFire(x,y,t){
 ctx.save();ctx.translate(x,y);const pulse=.94+Math.sin(t/145)*.06;
@@ -630,7 +685,7 @@ function reset(){cancelRepair();repairedUntil=0;sendAnalytics('game_start');mini
 function availableTypes(s,t=performance.now()){return TASK_IDS.filter(i=>!usedTasks.has(i)&&(i!==9||s?.urgentUntil>t))}
 function canOfferTask(s,t=performance.now()){return !s.done&&(!!s.delivery||availableTypes(s,t).length>0)}
 function chooseType(s){const candidates=availableTypes(s);return candidates.length?candidates[rand(candidates.length)]:null}
-function openTask(s,forced){mini?.cleanup?.();initAudio();keysClear();car.v=0;const type=s?.delivery?9:(forced??chooseType(s));if(type===null)return;if(!practice&&!s?.delivery)usedTasks.add(type);mini={type,site:s,done:false,phase:'intro',pauseAt:performance.now(),count:0,selected:null,matched:new Set(),reward:s?.delivery?s.delivery.reward:(s&&s.urgentUntil>performance.now()?10:5)};state='mini';$('controls').classList.add('hidden');$('mini').classList.remove('hidden');$('status').textContent='';$('deviceLabel').textContent=TASKS[type][3];$('title').textContent=TASKS[type][0];$('instruction').textContent=s?.delivery?'Megérkeztél a találkozási pontra. Jelezd az érkezésed!':TASKS[type][1];$('mt').textContent=TASKS[type][2]+' s';if(practice||!seen.has(type)){$('task').innerHTML='<div class="brief">'+(practice?'GYAKORLÁS · NINCS PONTVERSENY':'ELSŐ ALKALOM · AZ ÓRA MOST ÁLL')+'<p>'+TASKS[type][3]+' • '+TASKS[type][2]+' másodperc • '+mini.reward+' csillag</p></div><button class="wide" id="beginTask">Értem, kezdhetjük →</button>';$('beginTask').onclick=beginTask}else beginTask()}
+function openTask(s,forced){mini?.cleanup?.();keysClear();car.v=0;const type=s?.delivery?9:(forced??chooseType(s));if(type===null)return;if(!practice&&!s?.delivery)usedTasks.add(type);mini={type,site:s,done:false,phase:'intro',pauseAt:performance.now(),count:0,selected:null,matched:new Set(),reward:s?.delivery?s.delivery.reward:(s&&s.urgentUntil>performance.now()?10:5)};state='mini';$('controls').classList.add('hidden');$('mini').classList.remove('hidden');$('status').textContent='';$('deviceLabel').textContent=TASKS[type][3];$('title').textContent=TASKS[type][0];$('instruction').textContent=s?.delivery?'Megérkeztél a találkozási pontra. Jelezd az érkezésed!':TASKS[type][1];$('mt').textContent=TASKS[type][2]+' s';if(practice||!seen.has(type)){$('task').innerHTML='<div class="brief">'+(practice?'GYAKORLÁS · NINCS PONTVERSENY':'ELSŐ ALKALOM · AZ ÓRA MOST ÁLL')+'<p>'+TASKS[type][3]+' • '+TASKS[type][2]+' másodperc • '+mini.reward+' csillag</p></div><button class="wide" id="beginTask">Értem, kezdhetjük →</button>';$('beginTask').onclick=beginTask}else beginTask()}
 function beginTask(){if(!mini||mini.phase!=='intro')return;const now=performance.now();if(!practice){const paused=now-mini.pauseAt;deadline+=paused;nextUrgent+=paused;spots.forEach(s=>{if(s.urgentUntil)s.urgentUntil+=paused})}seen.add(mini.type);mini.phase='play';mini.started=now;mini.end=now+TASKS[mini.type][2]*1000;mini.data={};$('task').innerHTML='';TASKS[mini.type][5]();decorateTask();tone(500)}
 function resolve(ok,failure='Nem sikerült időben'){if(!mini||mini.done||mini.phase!=='play')return;if(ok&&performance.now()>=mini.end)ok=false;const transfer=mini.type===9&&mini.site?.delivery;if(transfer){transfer.source.pending=false;transfer.source.fixed=ok;transfer.source.failed=!ok;mini.site.location=mini.site.baseLocation;mini.site.delivery=null}mini.done=true;mini.cleanup?.();$('mini').classList.remove('time-critical');$('mini').classList.add(ok?'task-success':'task-failed');mini.close=performance.now()+1300;if(ok&&!practice){score+=mini.reward;success++;$('score').textContent='★ '+score}if(mini.site){mini.site.done=true;mini.site.fixed=ok;mini.site.failed=!ok;mini.site.urgentUntil=0}if(ok){tone(700,.13);setTimeout(()=>tone(1000,.15),130)}else tone(160,.25);$('status').textContent=ok?(practice?'Sikeres gyakorlás!':(TASKS[mini.type][4]==='Műszak'?'Szolgáltatás helyreállítva!':'Feladat teljesítve!')+' +'+mini.reward+' ★'):failure+' • +0 ★';$('task').querySelectorAll('button,input').forEach(b=>b.disabled=true)}
 
