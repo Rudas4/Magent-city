@@ -1,6 +1,18 @@
 <!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Magenta City • Városi küldetés</title>
 <link rel="icon" type="image/png" href="logo.png">
 <style>
+#returnToStart {
+  position: fixed;
+  left: 14px;
+  bottom: 99px;
+  width: 120px;
+  min-height: 44px;
+  padding: 5px 8px;
+  border: 1px solid #6e7b8f;
+  background: #182538de;
+  font-size: 12px;
+  pointer-events: auto;
+}
 #repairButton {
   position: fixed;
   bottom: 132px;
@@ -280,6 +292,7 @@ body:has(#start:not(.hidden), #practiceScreen:not(.hidden)) :is(.hud, #sound, #h
   pointer-events: none;
 }
 </style></head><body><canvas id="world"></canvas><div class="hud"><div class="pill"><small>HÁTRALÉVŐ IDŐ</small><span id="time">05:00</span></div><div class="pill"><small>CSILLAGOK</small><span id="score">★ 0</span></div></div><button id="sound" aria-label="Hang kapcsolása">Hang: BE</button><div id="urgent" class="hidden"></div><button id="repairButton" class="hidden" type="button" aria-label="Szerelés. Tartsd nyomva 3 másodpercig.">Szerelés · 3 s</button><div class="hint" id="hint">Állj meg egy magenta ! jelzésnél</div><div class="controls" id="controls">
+  <button id="returnToStart" type="button">Vissza a kezdőpontra</button>
   <div class="drive-stick" id="driveStick" role="group" aria-label="Autóirányító joystick">
     <span class="up" aria-hidden="true">▲</span><span class="down" aria-hidden="true">▼</span>
     <span class="left" aria-hidden="true">◀</span><span class="right" aria-hidden="true">▶</span>
@@ -323,6 +336,7 @@ document.body.addEventListener('contextmenu', event => {
   }
 });
 const $=id=>document.getElementById(id),cv=$('world'),ctx=cv.getContext('2d');let W,H,dpr;function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+const START_POSE = {x: 725, y: 668, a: 0};
 const MISSION_DURATION = 5 * 60 * 1000;
 const REPAIR_DURATION = 3000;
 const garage = {block: 20, x: 1120, y: 711};
@@ -681,7 +695,7 @@ function drawCarDamage(t){if(collisionCount<10||state==='start'||state==='practi
 const ex=Math.cos(car.a)*17,ey=Math.sin(car.a)*17;for(let i=0;i<9;i++){const age=((t/1100+i*.173)%1),r=4+age*15,x=ex+Math.sin(i*2.4+age*2)*age*16,y=ey-age*56;ctx.globalAlpha=(1-age)*.55;ctx.fillStyle=collisionCount>=15?'#2b2829':'#a0aaa5';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}ctx.globalAlpha=1;
 if(collisionCount>=15)drawEngineFire(ex,ey,t);
 if(boom&&elapsed<1.35){const progress=Math.max(0,elapsed/1.35);ctx.globalAlpha=1-progress;ctx.strokeStyle='#ffd873';ctx.lineWidth=6*(1-progress)+1;ctx.beginPath();ctx.arc(0,0,10+progress*95,0,7);ctx.stroke();for(let i=0;i<18;i++){const a=i*2.399,r=progress*(60+(i%5)*16);ctx.fillStyle=i%2?'#ff6524':'#ffd65a';ctx.beginPath();ctx.arc(Math.cos(a)*r,Math.sin(a)*r,(1-progress)*(10+i%4*3)+1,0,7);ctx.fill()}ctx.globalAlpha=1}ctx.restore()}
-function reset(){cancelRepair();repairedUntil=0;sendAnalytics('game_start');mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={x:725,y:668,a:0,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+MISSION_DURATION;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini','practiceScreen'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
+function reset(){cancelRepair();repairedUntil=0;sendAnalytics('game_start');mini?.cleanup?.();initAudio();resetDamage();practice=false;score=success=0;lastType=-1;usedTasks.clear();slowUntil=0;initTraffic();car={...START_POSE,v:0};spots.forEach(s=>{s.done=false;s.fixed=false;s.failed=false;s.urgentUntil=0;s.used=[];s.pending=false;s.delivery=null;s.location=s.baseLocation});deadline=performance.now()+MISSION_DURATION;nextUrgent=performance.now()+18000;mini=null;state='drive';keysClear();['start','end','mini','practiceScreen'].forEach(id=>$(id).classList.add('hidden'));$('score').textContent='★ 0';$('controls').classList.remove('hidden');$('urgent').classList.remove('hidden')}
 function availableTypes(s,t=performance.now()){return TASK_IDS.filter(i=>!usedTasks.has(i)&&(i!==9||s?.urgentUntil>t))}
 function canOfferTask(s,t=performance.now()){return !s.done&&(!!s.delivery||availableTypes(s,t).length>0)}
 function chooseType(s){const candidates=availableTypes(s);return candidates.length?candidates[rand(candidates.length)]:null}
@@ -1834,7 +1848,7 @@ function updateUrgency(t){if(t>=nextUrgent){const free=spots.filter(s=>!s.done&&
 // Retro city renderer and lane-following traffic.
 const traffic=[],palette=['#c2ad4b','#9e3c34','#4c8588','#b5b6a9','#57699c','#496c40'];
 // One lane per direction, with one shared centerline per stream.
-function initTraffic(){traffic.length=0;for(let i=0;i<64;i++){const horizontal=i%2===0,road=1+Math.floor(i/4)%5,lane=Math.floor(i/2)%2,dir=lane===0?1:-1,offset=25*dir,type=i%9===0?'bus':i%7===0?'truck':'car',len=type==='truck'?92:type==='bus'?74:44,width=type==='car'?24:28;const n={horizontal,road,lane,dir,type,len,width,color:palette[rand(palette.length)],a:horizontal?(dir>0?0:Math.PI):(dir>0?Math.PI/2:-Math.PI/2),speed:(type==='truck'?48:type==='bus'?58:72)+rand(type==='car'?55:22),v:0,brake:false};let pos;for(let attempt=0;attempt<100;attempt++){pos=80+rand(SIZE-160);const candidate={...n,x:horizontal?pos:road*STEP-offset,y:horizontal?road*STEP+offset:pos};if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(candidate),hull(o),25))&&!hullsOverlap(hull(candidate),hull({x:725,y:668,a:0},true),20))break}n.x=horizontal?pos:road*STEP-offset;n.y=horizontal?road*STEP+offset:pos;n.v=n.speed;if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(n),hull(o),2))&&!hullsOverlap(hull(n),hull({x:725,y:668,a:0},true),2))traffic.push(n)}}
+function initTraffic(){traffic.length=0;for(let i=0;i<64;i++){const horizontal=i%2===0,road=1+Math.floor(i/4)%5,lane=Math.floor(i/2)%2,dir=lane===0?1:-1,offset=25*dir,type=i%9===0?'bus':i%7===0?'truck':'car',len=type==='truck'?92:type==='bus'?74:44,width=type==='car'?24:28;const n={horizontal,road,lane,dir,type,len,width,color:palette[rand(palette.length)],a:horizontal?(dir>0?0:Math.PI):(dir>0?Math.PI/2:-Math.PI/2),speed:(type==='truck'?48:type==='bus'?58:72)+rand(type==='car'?55:22),v:0,brake:false};let pos;for(let attempt=0;attempt<100;attempt++){pos=80+rand(SIZE-160);const candidate={...n,x:horizontal?pos:road*STEP-offset,y:horizontal?road*STEP+offset:pos};if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(candidate),hull(o),25))&&!hullsOverlap(hull(candidate),hull(START_POSE,true),20))break}n.x=horizontal?pos:road*STEP-offset;n.y=horizontal?road*STEP+offset:pos;n.v=n.speed;if(![1,2,3,4,5].some(j=>Math.abs(pos-j*STEP)<65+len/2+8)&&!traffic.some(o=>hullsOverlap(hull(n),hull(o),2))&&!hullsOverlap(hull(n),hull(START_POSE,true),2))traffic.push(n)}}
 // Oriented rectangles include wheels and the full bus/trailer body.
 function hull(v,player=false){const a=player?v.a:(v.horizontal?(v.dir>0?0:Math.PI):(v.dir>0?Math.PI/2:-Math.PI/2));return {x:v.x,y:v.y,a,hx:player?23:v.len/2+1,hy:player?16:v.type==='car'?16:v.width/2+2}}
 function hullsOverlap(a,b,margin=1){const reach=a.hx+a.hy+b.hx+b.hy+margin;if(Math.abs(a.x-b.x)>=reach||Math.abs(a.y-b.y)>=reach)return false;const ax=[Math.cos(a.a),Math.sin(a.a)],ay=[-ax[1],ax[0]],bx=[Math.cos(b.a),Math.sin(b.a)],by=[-bx[1],bx[0]],dx=b.x-a.x,dy=b.y-a.y;for(const u of [ax,ay,bx,by]){const ra=a.hx*Math.abs(ax[0]*u[0]+ax[1]*u[1])+a.hy*Math.abs(ay[0]*u[0]+ay[1]*u[1]),rb=b.hx*Math.abs(bx[0]*u[0]+bx[1]*u[1])+b.hy*Math.abs(by[0]*u[0]+by[1]*u[1]);if(Math.abs(dx*u[0]+dy*u[1])>=ra+rb+margin)return false}return true}
@@ -1901,6 +1915,28 @@ if(state==='drive'){
 if(t<repairedUntil){$('hint').textContent='Az autó megjavítva!';return}
 if(parkedAtGarage()){$('hint').textContent=collisionCount?'Szerviz · Tartsd nyomva a Szerelés gombot!':'Szerviz · Az autó ép.';return}
 const nearest=spots.filter(s=>canOfferTask(s,t)).sort((a,b)=>Number(!!b.delivery)-Number(!!a.delivery)||Math.hypot(a.x-car.x,a.y-car.y)-Math.hypot(b.x-car.x,b.y-car.y))[0];if(nearest){const dx=nearest.x-car.x,dy=nearest.y-car.y,dist=Math.hypot(dx,dy);$('hint').textContent=t<toastUntil?'Koccanás! Figyelj a forgalomra.':nearest.delivery?'◆ Találkozási pont · '+Math.round(dist)+' m':'Legközelebbi állomás · '+Math.round(dist)+' m · '+(nearest.urgentUntil>t?'SÜRGŐS 10 ★':'5 ★');ctx.save();ctx.translate((car.x-cx)*zoom,(car.y-cy)*zoom);ctx.rotate(Math.atan2(dy,dx));ctx.fillStyle=nearest.delivery?'#4acfe4':'#ff51aa';ctx.beginPath();ctx.moveTo(65,0);ctx.lineTo(51,-8);ctx.lineTo(51,8);ctx.fill();ctx.restore()}else $('hint').textContent=usedTasks.size===TASK_IDS.length?'Minden minijátékot kipróbáltál ebben a műszakban!':'Új feladathoz várj egy sürgős címre!'}}
+$('returnToStart').onclick = () => {
+  if (state !== 'drive') return;
+  const {x, y, a} = START_POSE;
+  // Allow a nearby clear spot if a traffic vehicle is covering the starting position.
+  const offsets = [0, -32, 32, -64, 64, -96, 96, -128, 128];
+  for (const lane of [y, y - 56]) {
+    for (const offset of offsets) {
+      const spawnX = x + offset;
+      if (!valid(spawnX, lane) || !playerClear(spawnX, lane, a)) continue;
+      if (offset !== 0 || lane !== y) {
+        if (spots.some(s => Math.abs(s.x - spawnX) < 33 && Math.abs(s.y - lane) < 24)) continue;
+      }
+      cancelRepair();
+      keysClear();
+      Object.assign(car, {x: spawnX, y: lane, a, v: 0});
+      contactActive = false;
+      contactClearAt = null;
+      return;
+    }
+  }
+};
+
 function directionalDrive(dt, maxSpeed) {
   const relativeAngle = stickInput.angle - car.a;
   const headingError = Math.atan2(Math.sin(relativeAngle), Math.cos(relativeAngle));
